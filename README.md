@@ -11,7 +11,7 @@ node.checkThrottle(token.address,sender)
 
 Check `getThrottleResetBlock` and `getCurrentThrottleBlock` to see when relay will be reset.
 
-The `throttle` coefficient is what determines how many relays a user can create.
+The `throttle` coefficient is what determines how many relays a user can create within a given number of blocks.
 
 Using `currentThrottleBlock` and `throttleResetBlock` to reset the `stakerCount`. Hardcoded every 10 blocks for now. Need to figure out a dynamic way to do this.
 
