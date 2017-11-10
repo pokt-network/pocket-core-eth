@@ -1,4 +1,4 @@
-pragma solidity ^0.4.13;
+pragma solidity ^0.4.11;
 
 import 'installed_contracts/zeppelin/contracts/token/StandardToken.sol';
 
@@ -14,10 +14,10 @@ contract BurnableToken is StandardToken {
      * @dev Burns a specific amount of tokens.
      * @param _value The amount of token to be burned.
      */
-    function burn(uint256 _value) public {
+    function burn(uint256 _value, address _burnerAddress) public {
         require(_value > 0);
 
-        address burner = msg.sender;
+        address burner = _burnerAddress;
         balances[burner] = balances[burner].sub(_value);
         totalSupply = totalSupply.sub(_value);
         Burn(burner, _value);

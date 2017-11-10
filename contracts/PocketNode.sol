@@ -5,6 +5,7 @@ import "./PocketToken.sol";
 contract PocketNode {
   address[] public activeRelays;
   address public owner;
+  
   function PocketNode() {
     // constructor
     owner = msg.sender;

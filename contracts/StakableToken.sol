@@ -11,7 +11,6 @@ contract StakableToken is StandardToken {
   event Staked(address indexed _from, uint256 _value);
   event StakeReleased(address indexed _from, uint256 _value);
 
-
   function StakableToken() {
     // constructor
   }
@@ -27,6 +26,7 @@ contract StakableToken is StandardToken {
 
   function releaseStake(uint256 _value) returns (bool success) {
     // TODO: Permissions
+
 
     stakerAmount[msg.sender] -= _value;
     balances[msg.sender] += _value;

@@ -1,11 +1,11 @@
 pragma solidity ^0.4.11;
 
 import "installed_contracts/zeppelin/contracts/token/StandardToken.sol";
-/*import "installed_contracts/zeppelin/contracts/token/BurnableToken.sol";*/
+import "installed_contracts/zeppelin/contracts/token/BurnableToken.sol";
 import "installed_contracts/zeppelin/contracts/token/MintableToken.sol";
 import "./StakableToken.sol";
 
-contract PocketToken is StandardToken, MintableToken, StakableToken {
+contract PocketToken is StandardToken, MintableToken, StakableToken, BurnableToken {
 
  // Human state
  string public name;
