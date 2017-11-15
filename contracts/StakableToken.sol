@@ -18,6 +18,8 @@ contract StakableToken is StandardToken {
   function stake(uint256 _value) returns (bool success) {
     // TODO: Permissions
 
+    // TODO: Timelock stake
+
     balances[msg.sender] -= _value;
     stakerAmount[msg.sender] += _value;
     Staked(msg.sender, _value);
@@ -27,7 +29,7 @@ contract StakableToken is StandardToken {
   function releaseStake(uint256 _value) returns (bool success) {
     // TODO: Permissions
 
-
+    // TODO: Timelock stake
     stakerAmount[msg.sender] -= _value;
     balances[msg.sender] += _value;
     StakeReleased(msg.sender, _value);
