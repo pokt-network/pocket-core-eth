@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
-import "./PocketRelay.sol";
-import "./PocketToken.sol";
+import "../relay/PocketRelay.sol";
+import "../token/PocketToken.sol";
 
 contract PocketNode {
   address[] public activeRelays;

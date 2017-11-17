@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
-import "./PocketRelay.sol";
-import "./PocketToken.sol";
+import "../relay/PocketRelay.sol";
+import "../token/PocketToken.sol";
 
 contract PocketNodeDelegate {
   address[] public activeRelays;
@@ -23,7 +23,7 @@ contract PocketNodeDelegate {
     PocketToken token = PocketToken(tokenAddress);
     if (token.throttle(_throttleAddress) == true) {
       createRelay();
-    } 
+    }
   }
 
   function createRelay() private {

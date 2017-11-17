@@ -1,8 +1,8 @@
 pragma solidity ^0.4.11;
 
 import "./BaseRegistry.sol";
-import "./PocketToken.sol";
-import "./PocketNode.sol";
+import "../token/PocketToken.sol";
+import "../node/PocketNode.sol";
 /*import "./PocketNodeBackend.sol";*/
 
 contract PocketRegistryDelegate is BaseRegistry {
