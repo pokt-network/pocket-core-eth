@@ -2,44 +2,52 @@ pragma solidity ^0.4.11;
 
 import "./PocketRelay.sol";
 import "./PocketToken.sol";
+
 contract PocketNode {
   address[] public activeRelays;
   address public owner;
   address public tokenAddress;
 
+  address public delegateContract;
+  address[] public previousDelegates;
+
+  event DelegateChanged(address oldAddress, address newAddress);
+
   function PocketNode() {
+    // constructor
   }
 
-  function checkThrottle(address _throttleAddress) returns (bool) {
-    // if returns true relay transaction
+  function changeDelegate(address _newDelegate) returns (bool) {
 
-    //TODO: Permissions
-    assert(owner == msg.sender);
+  if (_newDelegate != delegateContract) {
 
-    PocketToken token = PocketToken(tokenAddress);
-    if (token.throttle(_throttleAddress) == true) {
-      createRelay();
-      return true;
-    } else {
-      return false;
+        previousDelegates.push(delegateContract);
+        var oldDelegate = delegateContract;
+        delegateContract = _newDelegate;
+        DelegateChanged(oldDelegate, _newDelegate);
+        return true;
     }
+    return false;
+
   }
 
-  function createRelay() private {
-    address relay = new PocketRelay();
-    activeRelays.push(relay);
+  function checkThrottle(address _throttleAddress) {
+    delegateContract.delegatecall(bytes4(sha3("checkThrottle(address)")), _throttleAddress);
   }
+
+  /*function createRelay() private {
+
+  }*/
 
   function getRelays() constant returns (address[]) {
     return activeRelays;
   }
 
   function setOwner(address _ownerAddress) {
-    owner = _ownerAddress;
+    delegateContract.delegatecall(bytes4(sha3("setOwner(address)")), _ownerAddress);
   }
 
   function setTokenAddress(address _tokenAddress) {
-    tokenAddress = _tokenAddress;
+    delegateContract.delegatecall(bytes4(sha3("setTokenAddress(address)")), _tokenAddress);
   }
-
 }
