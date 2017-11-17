@@ -17,7 +17,7 @@ contract StakableToken is StandardToken {
 
   function stake(uint256 _value) returns (bool success) {
     // TODO: Permissions
-
+    assert(_value > 0);
     // TODO: Timelock stake
 
     balances[msg.sender] -= _value;

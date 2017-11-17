@@ -4,6 +4,7 @@ To simulate the throttling of relays.
 ```
 PocketToken.deployed().then(function(instance) {token = instance})
 PocketRegistry.deployed().then(function(instance) { registry = instance })
+PocketRegistryBackend.deployed().then(function(instance) { registryBackend = instance })
 token.stake(1)
 sender = web3.eth.accounts[0]
 relayer = web3.eth.accounts[1]

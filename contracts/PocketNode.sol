@@ -5,21 +5,18 @@ import "./PocketToken.sol";
 contract PocketNode {
   address[] public activeRelays;
   address public owner;
+  address public tokenAddress;
 
   function PocketNode() {
-    // constructor
-
-    // TODO: register node with directory
-
   }
 
-  function checkThrottle(address _tokenAddress, address _throttleAddress) returns (bool) {
+  function checkThrottle(address _throttleAddress) returns (bool) {
     // if returns true relay transaction
 
     //TODO: Permissions
     assert(owner == msg.sender);
 
-    PocketToken token = PocketToken(_tokenAddress);
+    PocketToken token = PocketToken(tokenAddress);
     if (token.throttle(_throttleAddress) == true) {
       createRelay();
       return true;
@@ -39,6 +36,10 @@ contract PocketNode {
 
   function setOwner(address _ownerAddress) {
     owner = _ownerAddress;
+  }
+
+  function setTokenAddress(address _tokenAddress) {
+    tokenAddress = _tokenAddress;
   }
 
 }

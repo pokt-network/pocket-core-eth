@@ -6,24 +6,31 @@ import "./PocketNode.sol";
 
 contract PocketRegistry is BaseRegistry {
 
-  /*mapping (address => address) registeredNodes;*/
-  address[] public registeredNodes;
+address[] public registeredNodes;
+
+address public delegateContract;
+address[] public previousDelegates;
+
   function PocketRegistry() {
     // constructor
   }
 
+
   function registerBurn(address _tokenAddress, string _url) {
+
+    // Permissions
     PocketToken token = PocketToken(_tokenAddress);
     token.burn(1,msg.sender);
     register(msg.sender, _url);
 
-    createNodeContract();
+    createNodeContract(_tokenAddress);
   }
 
-  function createNodeContract () private {
+  function createNodeContract (address _tokenAddress) private {
 
     PocketNode newNode = new PocketNode();
     newNode.setOwner(msg.sender);
+    newNode.setTokenAddress(_tokenAddress);
     registeredNodes.push(newNode);
     /*registeredNodes[msg.sender] = newNode.address;*/
   }

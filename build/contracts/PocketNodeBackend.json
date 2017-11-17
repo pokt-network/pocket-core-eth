@@ -1,0 +1,14 @@
+{
+  "contract_name": "PocketNodeBackend",
+  "abi": [
+    {
+      "inputs": [],
+      "payable": false,
+      "type": "constructor"
+    }
+  ],
+  "unlinked_binary": "0x60606040523415600b57fe5b5b5b5b603380601b6000396000f30060606040525bfe00a165627a7a72305820cbb3596da5789398c0e56194dc99c3e3334f1da8171e65b3d77cac5d62e970580029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1510936163351
+}
