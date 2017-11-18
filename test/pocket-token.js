@@ -38,8 +38,6 @@ contract('PocketToken', function(accounts) {
   });
 
 
-
-
     it("should assert true", function(done) {
     var pocketToken = PocketToken.deployed();
     assert.isTrue(true);

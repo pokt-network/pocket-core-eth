@@ -5,6 +5,9 @@ import "../token/PocketToken.sol";
 import "../node/PocketNode.sol";
 
 contract PocketRegistry is BaseRegistry {
+
+  // Central registry where nodes sign up for services
+
   address public owner;
   address public nodeDelegateAddress;
   address[] public registeredNodes;

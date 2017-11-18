@@ -48,6 +48,7 @@ contract StakableToken is StandardToken {
     uint256 newCount = stakerCount[_address];
     uint256 stakedAmount = stakerAmount[_address];
 
+    // TODO: dynamic coefficient calculation
     uint256 coefficient = stakedAmount * 2;
 
     if (newCount >= coefficient) {

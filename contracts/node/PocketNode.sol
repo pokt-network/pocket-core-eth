@@ -4,6 +4,11 @@ import "../relay/PocketRelay.sol";
 import "../token/PocketToken.sol";
 
 contract PocketNode {
+
+  // Node contract is the contract that relayers will get assigned when signing up to the registry
+  // checkThrottle checks the staked amount of PKT that application has
+  // If not throttled, a relay contract will be created
+  
   address[] public activeRelays;
   address public owner;
   address public tokenAddress;
