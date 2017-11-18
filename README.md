@@ -28,7 +28,7 @@ Using `currentThrottleBlock` and `throttleResetBlock` to reset the `stakerCount`
 
 # TODOs
 
-Node Factory Management and permissions
+Node creation management and permissions
 
 Staking and slashing functions for nodes
 
@@ -37,8 +37,6 @@ Need to ensure permissions are done for function access
 Minting mechanism
 
 Oracles
-
-Upgradeable contracts
 
 ## Known excessive/high gas costs
 

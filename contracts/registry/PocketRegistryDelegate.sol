@@ -3,7 +3,6 @@ pragma solidity ^0.4.11;
 import "./BaseRegistry.sol";
 import "../token/PocketToken.sol";
 import "../node/PocketNode.sol";
-/*import "./PocketNodeBackend.sol";*/
 
 contract PocketRegistryDelegate is BaseRegistry {
 address public owner;
@@ -21,10 +20,13 @@ address[] public previousDelegates;
 
   function registerBurn(address _tokenAddress, string _url) {
 
-    // Permissions:
+    // TODO: Permissions
     // Check if address for relay already exists
 
     PocketToken token = PocketToken(_tokenAddress);
+
+    // TODO: Figure out burn amount
+    // TODO: Check if address is already registered
     token.burn(1,msg.sender);
     register(msg.sender, _url);
 
