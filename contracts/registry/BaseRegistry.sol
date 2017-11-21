@@ -47,6 +47,7 @@ contract BaseRegistry {
             records[key].url = url;
             numRecords++;
         } else {
+            // TODO: throw a more distinctive message
             revert();
         }
     }

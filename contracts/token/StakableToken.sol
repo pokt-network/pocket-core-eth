@@ -36,6 +36,7 @@ contract StakableToken is StandardToken {
     return true;
   }
 
+  // should this be _devAddress
   function throttle(address _address) returns (bool success) {
 
     // TODO: Permissions
@@ -45,10 +46,14 @@ contract StakableToken is StandardToken {
       resetThrottle(_address);
     }
 
+    // stakerCount = number of transactions dev have sent during the timeframe
+    // stakerAmount = amount of stake dev has
     uint256 newCount = stakerCount[_address];
     uint256 stakedAmount = stakerAmount[_address];
 
     // TODO: dynamic coefficient calculation
+    // Use velocity and supply to determine this coefficient
+    // Save gas, just save the coefficient once and reset it when the throttle resets
     uint256 coefficient = stakedAmount * 2;
 
     if (newCount >= coefficient) {

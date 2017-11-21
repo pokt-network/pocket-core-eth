@@ -8,7 +8,8 @@ contract PocketNode {
   // Node contract is the contract that relayers will get assigned when signing up to the registry
   // checkThrottle checks the staked amount of PKT that application has
   // If not throttled, a relay contract will be created
-  
+  // TODO: (MINT) only the node pays for gas, which means that the profit should be gas cost + infrastructure cost
+
   address[] public activeRelays;
   address public owner;
   address public tokenAddress;

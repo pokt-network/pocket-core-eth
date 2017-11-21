@@ -6,7 +6,7 @@ import "../node/PocketNode.sol";
 
 contract PocketRegistry is BaseRegistry {
 
-  // Central registry where nodes sign up for services
+  // registry where nodes sign up for services
 
   address public owner;
   address public nodeDelegateAddress;
@@ -26,7 +26,6 @@ contract PocketRegistry is BaseRegistry {
     assert(owner == msg.sender);
 
     if (_newDelegate != delegateContract) {
-
         previousDelegates.push(delegateContract);
         var oldDelegate = delegateContract;
         delegateContract = _newDelegate;
@@ -36,7 +35,7 @@ contract PocketRegistry is BaseRegistry {
     return false;
 
 }
-
+  // extra properties needed
   function registerBurn(address _tokenAddress, string _url) {
     delegateContract.delegatecall(bytes4(sha3("registerBurn(address,string)")), _tokenAddress, _url);
   }
@@ -52,7 +51,6 @@ contract PocketRegistry is BaseRegistry {
   function setNodeDelegateAddress(address _nodeDelegateAddress) {
     delegateContract.delegatecall(bytes4(sha3("setNodeDelegateAddress(address)")), _nodeDelegateAddress);
   }
-
 
 
 }

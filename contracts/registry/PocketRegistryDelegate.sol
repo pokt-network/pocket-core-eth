@@ -17,7 +17,7 @@ address[] public previousDelegates;
     owner = msg.sender;
   }
 
-
+  // TODO: instead of using a URL, we need to fetch the node metadata from the node contract
   function registerBurn(address _tokenAddress, string _url) {
 
     // TODO: Permissions
@@ -30,6 +30,7 @@ address[] public previousDelegates;
     token.burn(1,msg.sender);
     register(msg.sender, _url);
 
+    // TODO: Return the newly created Node
     createNodeContract(_tokenAddress);
   }
 
@@ -50,5 +51,9 @@ address[] public previousDelegates;
   function setNodeDelegateAddress(address _nodeDelegateAddress) {
     assert(owner == msg.sender);
     nodeDelegateAddress = _nodeDelegateAddress;
+  }
+
+  function foo() {
+
   }
 }
