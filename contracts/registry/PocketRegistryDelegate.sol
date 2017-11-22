@@ -24,9 +24,11 @@ address[] public previousDelegates;
     // Check if address for relay already exists
 
     PocketToken token = PocketToken(_tokenAddress);
-
+    /*address newTokenAddress = _tokenAddress;
+    newTokenAddress.call(bytes4(sha3("burn(uint256,address)")),1,msg.sender);*/
     // TODO: Figure out burn amount
     // TODO: Check if address is already registered
+
     token.burn(1,msg.sender);
     register(msg.sender, _url);
 
@@ -34,7 +36,7 @@ address[] public previousDelegates;
     createNodeContract(_tokenAddress);
   }
 
-  function createNodeContract (address _tokenAddress) private {
+  function createNodeContract (address _tokenAddress) {
 
     PocketNode newNode = new PocketNode();
     newNode.changeDelegate(nodeDelegateAddress);
@@ -53,7 +55,4 @@ address[] public previousDelegates;
     nodeDelegateAddress = _nodeDelegateAddress;
   }
 
-  function foo() {
-
-  }
 }

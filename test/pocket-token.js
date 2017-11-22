@@ -24,7 +24,7 @@ contract('PocketToken', function(accounts) {
 
   it("should release stake value", function() {
     return PocketToken.deployed().then(function(instance) {
-      token = instance;
+      // token = instance;
       token.releaseStake(1, {from:sender});
       return token.stakerAmount.call(sender);
     }).then(function(amount) {

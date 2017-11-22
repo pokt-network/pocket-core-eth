@@ -40,9 +40,9 @@ contract PocketRegistry is BaseRegistry {
     delegateContract.delegatecall(bytes4(sha3("registerBurn(address,string)")), _tokenAddress, _url);
   }
 
-  /*function createNodeContract (address _tokenAddress) private {
-    delegateContract.delegatecall(bytes4(sha3("createNodeContract(address)")),);
-  }*/
+  function createNodeContract (address _tokenAddress) {
+    delegateContract.delegatecall(bytes4(sha3("createNodeContract(address)")), _tokenAddress);
+  }
 
   function getNodes() constant returns (address[]) {
     return registeredNodes;
