@@ -7,14 +7,14 @@
       "type": "constructor"
     }
   ],
-  "unlinked_binary": "0x60606040523415600b57fe5b5b5b5b603380601b6000396000f30060606040525bfe00a165627a7a723058201d49c49e6e3cb85bda2a69477d8b7b6fe3ed9b77ce6c81445cb2b66686cc8b9e0029",
+  "unlinked_binary": "0x60606040523415600b57fe5b5b5b5b603380601b6000396000f30060606040525bfe00a165627a7a723058204f8a0474f36bab2ff49ef544f5e8f65becc0ac9c6ab4f2e122209677ea0d6b3a0029",
   "networks": {
     "4": {
       "links": {},
       "events": {},
-      "updated_at": 1511355681424
+      "updated_at": 1511379202206
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1511355681424
+  "updated_at": 1511466344846
 }
