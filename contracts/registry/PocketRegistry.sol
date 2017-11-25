@@ -5,9 +5,9 @@ import "../token/PocketToken.sol";
 import "../node/PocketNode.sol";
 
 
-contract PocketRegistry {
+contract PocketRegistry is BaseRegistry {
 
-//address public owner;
+address public owner;
 address public nodeDelegateAddress;
 address[] public registeredNodes;
 
@@ -15,15 +15,18 @@ address public delegateContract;
 address[] public previousDelegates;
 uint256 public count;
 address public tokenAddress;
+mapping (address => address) public userNode;
+
 
   event DelegateChanged(address oldAddress, address newAddress);
 
   function PocketRegistry() {
     // constructor
+    owner = msg.sender;
   }
 
   function changeDelegate(address _newDelegate) returns (bool) {
-    /*assert(owner == msg.sender);*/
+    //assert(owner == msg.sender);
 
     if (_newDelegate != delegateContract) {
         previousDelegates.push(delegateContract);
@@ -35,24 +38,30 @@ address public tokenAddress;
     return false;
 
 }
-  // extra properties needed
+// By registering a Node, you are agreeing to be a relayer in the Pocket Network.
+// Three actions happen - you burn some PKT, register in the registry, and a Node contract gets created and assigned to your address
+// Registry allows network to keep track of current live nodes
   function registerNode() {
-    delegateContract.delegatecall(bytes4(sha3("registerNode()")));
+    require(delegateContract.delegatecall(bytes4(sha3("registerNode()"))));
   }
 
   function createNodeContract () {
-    delegateContract.delegatecall(bytes4(sha3("createNodeContract()")));
+    require(delegateContract.delegatecall(bytes4(sha3("createNodeContract()"))));
   }
 
-  function getNodes() constant returns (address[]) {
+  function getLiveNodes() constant returns (address[]) {
     return registeredNodes;
   }
 
+  function getCurrentNode () constant returns (address) {
+    return userNode[msg.sender];
+  }
+
   function setTokenAddress(address _tokenAddress) {
-    delegateContract.delegatecall(bytes4(sha3("setTokenAddress(address)")), _tokenAddress);
+    require(delegateContract.delegatecall(bytes4(sha3("setTokenAddress(address)")), _tokenAddress));
   }
   function setNodeDelegateAddress(address _nodeDelegateAddress) {
-    delegateContract.delegatecall(bytes4(sha3("setNodeDelegateAddress(address)")), _nodeDelegateAddress);
+    require(delegateContract.delegatecall(bytes4(sha3("setNodeDelegateAddress(address)")), _nodeDelegateAddress));
   }
 
 

@@ -8,6 +8,7 @@ PocketRegistryDelegate.deployed().then(function(instance) { registryDelegate = i
 PocketNodeDelegate.deployed().then(function(instance) { nodeDelegate = instance })
 registry.changeDelegate(registryDelegate.address)
 registry.setNodeDelegateAddress(nodeDelegate.address)
+registry.setTokenAddress(token.address)
 token.stake(1)
 sender = web3.eth.accounts[0]
 relayer = web3.eth.accounts[1]

@@ -5,9 +5,6 @@ import "../token/PocketToken.sol";
 
 contract PocketNode {
 
-  // Node contract is the contract that relayers will get assigned when signing up to the registry
-  // checkThrottle checks the staked amount of PKT that application has
-  // If not throttled, a relay contract will be created
   // TODO: (MINT) only the node pays for gas, which means that the profit should be gas cost + infrastructure cost
 
   address[] public activeRelays;
@@ -20,7 +17,6 @@ contract PocketNode {
   event DelegateChanged(address oldAddress, address newAddress);
 
   function PocketNode() {
-    // constructor
   }
 
   function changeDelegate(address _newDelegate) returns (bool) {
@@ -37,23 +33,22 @@ contract PocketNode {
 
   }
 
+  // Node contract is the contract that relayers will get assigned when signing up to the registry
+  // checkThrottle checks the staked amount of PKT that application has
+  // If not throttled, a relay contract will be created
   function checkThrottle(address _throttleAddress) {
-    delegateContract.delegatecall(bytes4(sha3("checkThrottle(address)")), _throttleAddress);
+    require(delegateContract.delegatecall(bytes4(sha3("checkThrottle(address)")), _throttleAddress));
   }
-
-  /*function createRelay() private {
-
-  }*/
 
   function getRelays() constant returns (address[]) {
     return activeRelays;
   }
 
   function setOwner(address _ownerAddress) {
-    delegateContract.delegatecall(bytes4(sha3("setOwner(address)")), _ownerAddress);
+    require(delegateContract.delegatecall(bytes4(sha3("setOwner(address)")), _ownerAddress));
   }
 
   function setTokenAddress(address _tokenAddress) {
-    delegateContract.delegatecall(bytes4(sha3("setTokenAddress(address)")), _tokenAddress);
+    require(delegateContract.delegatecall(bytes4(sha3("setTokenAddress(address)")), _tokenAddress));
   }
 }
