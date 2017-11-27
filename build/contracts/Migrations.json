@@ -120,8 +120,14 @@
       "links": {},
       "address": "0x6359b6b66a44c5413d33ebc9f0e030e6039b422e",
       "updated_at": 1511609030257
+    },
+    "1511783629007": {
+      "events": {},
+      "links": {},
+      "address": "0xd34ea06e2d431258b5795cef785de2cae2eac37b",
+      "updated_at": 1511784711675
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1511609030257
+  "updated_at": 1511784711675
 }

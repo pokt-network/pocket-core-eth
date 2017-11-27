@@ -3,9 +3,14 @@ pragma solidity ^0.4.11;
 import "installed_contracts/zeppelin/contracts/token/StandardToken.sol";
 
 contract StakableToken is StandardToken {
-  mapping (address => uint256) public stakerAmount;
-  mapping (address => uint256) public stakerCount;
-  uint public currentThrottleBlock;
+
+  // Mapping of address staking => staked amount
+  mapping (address => uint256) public stakedAmount;
+  // Mapping of address staking => count of transactions in current throttle epoch
+  mapping (address => uint256) public epochTransactionCount;
+
+  // Throttle epoch state: epochTransactionCount gets reset after end of each epoch
+  uint public throttleStartBlock;
   uint public throttleResetBlock;
 
   event Staked(address indexed _from, uint256 _value);
@@ -14,68 +19,70 @@ contract StakableToken is StandardToken {
   function StakableToken() {
     // constructor
   }
-
+  // Cannot throttle without first staking PKT
   function stake(uint256 _value) returns (bool success) {
     // TODO: Permissions
-    assert(_value > 0);
+    require(_value > 0);
     // TODO: Timelock stake
 
     balances[msg.sender] -= _value;
-    stakerAmount[msg.sender] += _value;
+    stakedAmount[msg.sender] += _value;
     Staked(msg.sender, _value);
     return true;
   }
 
   function releaseStake(uint256 _value) returns (bool success) {
     // TODO: Permissions
-
     // TODO: Timelock stake
-    stakerAmount[msg.sender] -= _value;
+    stakedAmount[msg.sender] -= _value;
     balances[msg.sender] += _value;
     StakeReleased(msg.sender, _value);
     return true;
   }
 
-  // should this be _devAddress
-  function throttle(address _address) returns (bool success) {
+  function throttle(address _stakerAddress) returns (bool success) {
 
     // TODO: Permissions
 
-    // check if throttle needs to be reset
+    // check if current throttle epoch needs to be reset
     if (block.number >= throttleResetBlock) {
-      resetThrottle(_address);
+      resetThrottleEpoch(_stakerAddress);
     }
 
-    // stakerCount = number of transactions dev have sent during the timeframe
-    // stakerAmount = amount of stake dev has
-    uint256 newCount = stakerCount[_address];
-    uint256 stakedAmount = stakerAmount[_address];
+    // Get current epoch state of staker
+    uint256 currentEpochTransactionCount = epochTransactionCount[_stakerAddress];
+    uint256 currentStakedAmount = stakedAmount[_stakerAddress];
 
+    // Coefficient is how many transactions per throttle epoch are allowed
     // TODO: dynamic coefficient calculation
     // Use velocity and supply to determine this coefficient
-    // Save gas, just save the coefficient once and reset it when the throttle resets
-    uint256 coefficient = stakedAmount * 2;
+    uint256 throttleCoefficient = currentStakedAmount * 2;
 
-    if (newCount >= coefficient) {
+    // Luis: Save gas, just save the coefficient once and reset it when the throttle resets
+    if (currentEpochTransactionCount >= throttleCoefficient) {
       return false;
     } else {
-      stakerCount[_address] += 1;
+      epochTransactionCount[_stakerAddress] += 1;
       return true;
     }
   }
 
-  function resetThrottle(address _stakerAddress) {
+  function resetThrottleEpoch(address _stakerAddress) {
     // TODO: Permissions
+    // PocketNodes reset when checking throttle
+    // assert(currentThrottleBlock > throttleResetBlock);
 
-    /*assert(currentThrottleBlock > throttleResetBlock);*/
-    currentThrottleBlock = block.number;
-    uint blockNumber = currentThrottleBlock;
-    throttleResetBlock = blockNumber += 10; // TODO: calculate reset dynamically
-    stakerCount[_stakerAddress] = 0;
+    uint blockNumber = block.number;
+
+    // TODO: calculate reset dynamically
+    throttleResetBlock = blockNumber += 10;
+
+    // Reset count on new epoch
+    epochTransactionCount[_stakerAddress] = 0;
   }
 
-  function getCurrentThrottleBlock() constant returns (uint) {
-    return currentThrottleBlock;
+  function getThrottleStartBlock() constant returns (uint) {
+    return throttleStartBlock;
   }
 
   function getThrottleResetBlock () constant returns (uint) {

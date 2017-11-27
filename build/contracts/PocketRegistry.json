@@ -605,8 +605,32 @@
       "links": {},
       "address": "0x02afad18308e6927ce7ab5e72917be135ce9ad35",
       "updated_at": 1511609030250
+    },
+    "1511783629007": {
+      "events": {
+        "0xef9fc1dee6010109e6e3b21e51d44028e246dbad8a5a71ea192a30b19e1f457f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "oldAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "newAddress",
+              "type": "address"
+            }
+          ],
+          "name": "DelegateChanged",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x004f64fd60134463f2d34a736ef85a2aa5f3b71f",
+      "updated_at": 1511784711675
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1511609030250
+  "updated_at": 1511784711675
 }
