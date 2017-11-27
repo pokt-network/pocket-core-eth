@@ -1,3 +1,23 @@
+# Pocket Network Contracts
+
+Pocket Network is a blockchain agnostic, decentralized relay network. Nodes in the network spend compute in the form of running local nodes (geth/parity, bitcoin core, zcash, etc) and hosting standardized REST API endpoints. They relay transactions in return for mint in PKT.
+
+## Token Overview
+
+- ERC20 token
+- Tokens burned through registry contract
+- Tokens staked by users and relayers
+- Transactions throttled based on amount staked
+- 4 primary contracts: Token, Relay, Oracle, and Registry
+
+
+### Missing features
+- Infinite mint
+- Logarithmic scale minting schedule
+- Mint received by relayers and oracles
+- Relays throttled based on amount staked
+
+
 ## truffle testrpc commands
 
 To simulate the throttling of relays.
@@ -27,7 +47,7 @@ The `throttle` coefficient is what determines how many relays a user can create 
 Using `currentThrottleBlock` and `throttleResetBlock` to reset the `stakerCount`. Hardcoded every 10 blocks for now. Need to figure out a dynamic way to do this.
 
 
-# TODOs
+## TODOs
 
 Node creation management and permissions
 
