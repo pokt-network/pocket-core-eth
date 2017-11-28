@@ -4,6 +4,8 @@ import "installed_contracts/zeppelin/contracts/token/StandardToken.sol";
 
 contract StakableToken is StandardToken {
 
+
+
   // Mapping of address staking => staked amount
   mapping (address => uint256) public stakedAmount;
   // Mapping of address staking => count of transactions in current throttle epoch
@@ -17,8 +19,12 @@ contract StakableToken is StandardToken {
   event StakeReleased(address indexed _from, uint256 _value);
 
   function StakableToken() {
-    // constructor
   }
+
+  /*
+  * Core staking functions
+  */
+
   // Cannot throttle without first staking PKT
   function stake(uint256 _value) returns (bool success) {
     // TODO: Permissions
@@ -40,10 +46,14 @@ contract StakableToken is StandardToken {
     return true;
   }
 
+
+  /*
+  * Core throttling functions
+  */
+
   function throttle(address _stakerAddress) returns (bool success) {
 
     // TODO: Permissions
-
     // check if current throttle epoch needs to be reset
     if (block.number >= throttleResetBlock) {
       resetThrottleEpoch(_stakerAddress);
@@ -69,9 +79,6 @@ contract StakableToken is StandardToken {
 
   function resetThrottleEpoch(address _stakerAddress) {
     // TODO: Permissions
-    // PocketNodes reset when checking throttle
-    // assert(currentThrottleBlock > throttleResetBlock);
-
     uint blockNumber = block.number;
 
     // TODO: calculate reset dynamically

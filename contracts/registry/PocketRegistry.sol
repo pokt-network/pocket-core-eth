@@ -4,17 +4,17 @@ import "./BaseRegistry.sol";
 import "../token/PocketToken.sol";
 import "../node/PocketNode.sol";
 
-
 contract PocketRegistry is BaseRegistry {
 
+// Address state
 address public owner;
 address public nodeDelegateAddress;
-address[] public registeredNodes;
-
+address public tokenAddress;
 address public delegateContract;
 address[] public previousDelegates;
-uint256 public count;
-address public tokenAddress;
+
+// Node state
+address[] public registeredNodes;
 mapping (address => address) public userNode;
 
 
@@ -38,6 +38,7 @@ mapping (address => address) public userNode;
     return false;
 
 }
+
 // By registering a Node, you are agreeing to be a relayer in the Pocket Network.
 // Three actions happen - you burn some PKT, register in the registry, and a Node contract gets created and assigned to your address
 // Registry allows network to keep track of current live nodes
@@ -49,6 +50,7 @@ mapping (address => address) public userNode;
     require(delegateContract.delegatecall(bytes4(sha3("createNodeContract()"))));
   }
 
+  // Get list of nodes that are currently relaying transactions
   function getLiveNodes() constant returns (address[]) {
     return registeredNodes;
   }

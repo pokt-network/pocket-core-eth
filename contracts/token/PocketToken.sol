@@ -23,7 +23,7 @@ contract PocketToken is StandardToken, MintableToken, StakableToken, BurnableTok
     decimals = 18;
     version = "0.1";
 
-    resetThrottle(msg.sender);
+    resetThrottleEpoch(msg.sender);
 
   }
 

@@ -4,18 +4,18 @@ import "./BaseRegistry.sol";
 import "../token/PocketToken.sol";
 import "../node/PocketNode.sol";
 
-
 contract PocketRegistryDelegate is BaseRegistry {
 
-address public owner;
-address public nodeDelegateAddress;
-address[] public registeredNodes;
+  // Address state
+  address public owner;
+  address public nodeDelegateAddress;
+  address public tokenAddress;
+  address public delegateContract;
+  address[] public previousDelegates;
 
-address public delegateContract;
-address[] public previousDelegates;
-uint256 public count;
-address public tokenAddress;
-mapping (address => address) public userNode;
+  // Node state
+  address[] public registeredNodes;
+  mapping (address => address) public userNode;
 
   function PocketRegistryDelegate() {
     owner = msg.sender;

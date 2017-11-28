@@ -14,14 +14,30 @@ import 'installed_contracts/zeppelin/contracts/ownership/Ownable.sol';
  */
 
 contract MintableToken is StandardToken, Ownable {
-  event Mint(address indexed to, uint256 amount);
-  event MintFinished();
+
+  /** List of agents that are allowed to create new tokens */
+  mapping (address => bool) public mintAgents;
 
   bool public mintingFinished = false;
 
+  event Mint(address indexed to, uint256 amount);
+  event MintFinished();
+  event MintingAgentChanged(address addr, bool state);
 
+
+  function MintableToken () {
+
+  }
   modifier canMint() {
     require(!mintingFinished);
+    _;
+  }
+
+  modifier onlyMintAgent() {
+    // Only crowdsale contracts are allowed to mint new tokens
+    if(!mintAgents[msg.sender]) {
+        throw;
+    }
     _;
   }
 
@@ -31,12 +47,20 @@ contract MintableToken is StandardToken, Ownable {
    * @param _amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
-  function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
+
+
+  function mint(address _to, uint256 _amount) onlyMintAgent canMint public returns (bool) {
     totalSupply = totalSupply.add(_amount);
     balances[_to] = balances[_to].add(_amount);
     Mint(_to, _amount);
     Transfer(0x0, _to, _amount);
     return true;
+  }
+
+
+  function setMintAgent(address addr, bool state) onlyOwner canMint public {
+  mintAgents[addr] = state;
+  MintingAgentChanged(addr, state);
   }
 
   /**

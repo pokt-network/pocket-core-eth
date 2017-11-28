@@ -1,8 +1,10 @@
 # Pocket Network Contracts
 
-Pocket Network is a blockchain agnostic, decentralized relay network. Nodes in the network spend compute in the form of running local nodes (geth/parity, bitcoin core, zcash, etc) and hosting standardized REST API endpoints. They relay transactions in return for mint in PKT.
+Pocket Network is a blockchain agnostic, decentralized relay network. Nodes in the network spend compute in the form of running local nodes (geth/parity, bitcoin core, zcash, etc) and hosting standardized REST API endpoints. Nodes relay transactions for users in return for mint in PKT.
 
-## Token Overview
+Users must stake PKT in order to use Node services. User transactions are throttled based on the amount of PKT staked in the PocketToken contract. Users must stake more PKT to send more transactions.
+
+## Overview
 
 - ERC20 token
 - Tokens burned through registry contract
@@ -10,34 +12,23 @@ Pocket Network is a blockchain agnostic, decentralized relay network. Nodes in t
 - Transactions throttled based on amount staked
 - 4 primary contracts: Token, Relay, Oracle, and Registry
 
-
-### Missing features
-- Infinite mint
-- Logarithmic scale minting schedule
-- Mint received by relayers and oracles
-- Relays throttled based on amount staked
-
 ## TODOs
 
-Node creation management and permissions
-
-Staking and slashing functions for nodes
-
-Need to ensure permissions are done for function access
-
-Minting mechanism
-
-Oracles
+- Node creation management and permissions
+- Staking and slashing functions for nodes
+- Minting mechanism
+- Oracles
+- Mint
+- Logarithmic scale minting schedule
+- Relays throttled based on Node amount staked
+- Relay/Node Slashing
 
 ## Known excessive/high gas costs
 
-changeDelegate called every time for PocketNode contracts
-
-strings should be bytes
-
-Registry too expensive
-
-Relay contract created for each relay
+- changeDelegate called every time for PocketNode contracts
+- strings should be bytes
+- Registry too expensive
+- Relay contract created for each relay
 
 ## truffle testrpc commands
 
@@ -59,10 +50,7 @@ registry.registerBurn({from:relayer})
 registry.getLiveNodes()
 node = PocketNode.at("address")
 node.checkThrottle(sender)
+node.getRelays()
+relay = PocketRelay.at("address")
+relay.approveTransaction()
 ```
-
-Check `getThrottleResetBlock` and `getCurrentThrottleBlock` to see when relay will be reset.
-
-The `throttle` coefficient is what determines how many relays a user can create within a given number of blocks.
-
-Using `currentThrottleBlock` and `throttleResetBlock` to reset the `stakerCount`. Hardcoded every 10 blocks for now. Need to figure out a dynamic way to do this.

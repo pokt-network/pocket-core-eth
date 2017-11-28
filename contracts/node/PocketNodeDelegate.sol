@@ -27,7 +27,9 @@ contract PocketNodeDelegate {
   }
 
   function createRelay() private {
-    address relay = new PocketRelay();
+    PocketRelay relay = new PocketRelay();
+    relay.setTokenAddress(tokenAddress);
+    relay.setNodeAddress(owner);
     activeRelays.push(relay);
   }
 
