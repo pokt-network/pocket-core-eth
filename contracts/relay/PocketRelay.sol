@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import "../token/PocketToken.sol";
+//import "../token/PocketToken.sol";
 /*import "./PocketMint.sol";*/
 
 contract PocketRelay {
@@ -24,17 +24,17 @@ contract PocketRelay {
 
   function approveTransaction() {
     approvalCount += 1;
-
+    //if (approvalCount == 3) {
     //senderAddresses.push(msg.sender);
-      PocketToken token = PocketToken(tokenAddress);
+      //PocketToken token = PocketToken.at();
       //nodeAddress.push(token);
-      senderAddresses.push(token);
-      token.mint(nodeAddress, 10);
+      //senderAddresses.push(token);
+      //token.mint(nodeAddress, 10);
 
       //tokenAddress.call(bytes4(sha3("mint(address,uint256)")), nodeAddress, 10);
-if (approvalCount == 3) {
+
       /*kill();*/
-    }
+    //}
   }
 
   function setTokenAddress(address _tokenAddress) {

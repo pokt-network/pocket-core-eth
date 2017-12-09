@@ -638,10 +638,58 @@
         }
       },
       "links": {},
-      "address": "0x6642f20a33e34b1231e282261883a692d070446e",
-      "updated_at": 1511827581254
+      "address": "0x9f4b62f0307ee1011ac5f091b69f4d2b4b10c0b5",
+      "updated_at": 1511905141230
+    },
+    "1511955877725": {
+      "events": {
+        "0xef9fc1dee6010109e6e3b21e51d44028e246dbad8a5a71ea192a30b19e1f457f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "oldAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "newAddress",
+              "type": "address"
+            }
+          ],
+          "name": "DelegateChanged",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xce240b6d3918b004a8be13673893e309d7f13e3a",
+      "updated_at": 1511964014604
+    },
+    "1511964185941": {
+      "events": {
+        "0xef9fc1dee6010109e6e3b21e51d44028e246dbad8a5a71ea192a30b19e1f457f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "oldAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "newAddress",
+              "type": "address"
+            }
+          ],
+          "name": "DelegateChanged",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xd29690e16b7619d1d2024029f5ca8d31b4f951de",
+      "updated_at": 1511964427675
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1511827581254
+  "updated_at": 1511964427675
 }

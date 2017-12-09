@@ -6,6 +6,7 @@ import 'installed_contracts/zeppelin/contracts/ownership/Ownable.sol';
 
 
 
+
 /**
  * @title Mintable token
  * @dev Simple ERC20 Token example, with mintable token creation
@@ -50,6 +51,11 @@ contract MintableToken is StandardToken, Ownable {
 
 
   function mint(address _to, uint256 _amount) onlyMintAgent canMint public returns (bool) {
+
+    // TODO: Mintable token with inflation
+    // Check throttle epoch
+    // Check relays sent during epoch
+    // Mint based on relays sent during epoch
     totalSupply = totalSupply.add(_amount);
     balances[_to] = balances[_to].add(_amount);
     Mint(_to, _amount);

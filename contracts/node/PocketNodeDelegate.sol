@@ -11,6 +11,10 @@ contract PocketNodeDelegate {
   address public delegateContract;
   address[] public previousDelegates;
 
+  uint256 public relayCount;
+  uint256 public currentEpoch;
+  mapping (uint256 => uint256) epochRelayCount;
+
   function PocketNodeDelegate() {
   }
 
@@ -31,6 +35,7 @@ contract PocketNodeDelegate {
     relay.setTokenAddress(tokenAddress);
     relay.setNodeAddress(owner);
     activeRelays.push(relay);
+    relayCount = relayCount += 1;
   }
 
   function getRelays() constant returns (address[]) {
