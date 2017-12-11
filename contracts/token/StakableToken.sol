@@ -50,7 +50,7 @@ contract StakableToken is StandardToken {
   * Core throttling functions
   */
 
-  function throttle(address _stakerAddress) constant returns (bool success) {
+  function throttle(address _stakerAddress) returns (bool success) {
 
     // TODO: Permissions
     //Must stake at least 1 PKT
@@ -70,12 +70,14 @@ contract StakableToken is StandardToken {
     uint256 throttleCoefficient = currentStakedAmount * 2;
 
     // Luis: Save gas, just save the coefficient once and reset it when the throttle resets
-    if (currentEpochTransactionCount >= throttleCoefficient) {
+    if (currentEpochTransactionCount > throttleCoefficient) {
+      //resetThrottleEpoch(_stakerAddress);
       return false;
     } else {
       epochTransactionCount[_stakerAddress] += 1;
       return true;
     }
+
   }
 
   function resetThrottleEpoch(address _stakerAddress) {
@@ -83,7 +85,7 @@ contract StakableToken is StandardToken {
     uint blockNumber = block.number;
 
     // TODO: calculate reset dynamically
-    throttleResetBlock = blockNumber += 5;
+    throttleResetBlock = blockNumber += 10;
 
     throttleEpoch += 1;
     // Reset count on new epoch
