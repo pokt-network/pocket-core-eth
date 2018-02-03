@@ -688,8 +688,32 @@
       "links": {},
       "address": "0xd29690e16b7619d1d2024029f5ca8d31b4f951de",
       "updated_at": 1511964427675
+    },
+    "1514200980620": {
+      "events": {
+        "0xef9fc1dee6010109e6e3b21e51d44028e246dbad8a5a71ea192a30b19e1f457f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "oldAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "newAddress",
+              "type": "address"
+            }
+          ],
+          "name": "DelegateChanged",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x8a3dbee6c732858de7c36075a37ffadade771de7",
+      "updated_at": 1514204880613
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1513009194883
+  "updated_at": 1514204880613
 }
