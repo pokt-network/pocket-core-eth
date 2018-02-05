@@ -34,6 +34,7 @@ contract PocketNodeDelegate {
     PocketRelay relay = new PocketRelay();
     relay.setTokenAddress(tokenAddress);
     relay.setNodeAddress(owner);
+    relay.setToken(tokenAddress);
     activeRelays.push(relay);
     relayCount = relayCount += 1;
   }
