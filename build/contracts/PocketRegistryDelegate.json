@@ -2499,6 +2499,7 @@
       "address": "0xfe43dff4fe4666da94cdacbaad0d47500d34fef7",
       "updated_at": 1511964427674
     },
+<<<<<<< HEAD
     "1517532799973": {
       "events": {},
       "links": {},
@@ -2507,4 +2508,15 @@
   },
   "schemaVersion": "1.0.1",
   "updatedAt": "2018-02-02T23:20:04.119Z"
+=======
+    "1514200980620": {
+      "events": {},
+      "links": {},
+      "address": "0xc0446dda82e6cf27e5b18ea7a33af4adc34e84ee",
+      "updated_at": 1514204880612
+    }
+  },
+  "schema_version": "0.0.5",
+  "updated_at": 1514204880612
+>>>>>>> 2c807beca0e26e11e5f09cf2d76694eb17224e52
 }

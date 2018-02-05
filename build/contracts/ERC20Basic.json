@@ -469,6 +469,11 @@
     "version": "0.4.18+commit.9cf6e910.Emscripten.clang"
   },
   "networks": {},
+<<<<<<< HEAD
   "schemaVersion": "1.0.1",
   "updatedAt": "2018-02-02T23:19:09.372Z"
+=======
+  "schema_version": "0.0.5",
+  "updated_at": 1514204880224
+>>>>>>> 2c807beca0e26e11e5f09cf2d76694eb17224e52
 }
