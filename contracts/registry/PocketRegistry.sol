@@ -15,6 +15,7 @@ address[] public previousDelegates;
 
 // Node state
 address[] public registeredNodes;
+address[] public registeredOracles;
 mapping (address => address) public userNode;
 
 
@@ -42,9 +43,9 @@ mapping (address => address) public userNode;
 // By registering a Node, you are agreeing to be a relayer in the Pocket Network.
 // Three actions happen - you burn some PKT, register in the registry, and a Node contract gets created and assigned to your address
 // Registry allows network to keep track of current live nodes
-  function registerNode() {
+  /* function registerNode() {
     require(delegateContract.delegatecall(bytes4(sha3("registerNode()"))));
-  }
+  } */
 
   function createNodeContract () {
     require(delegateContract.delegatecall(bytes4(sha3("createNodeContract()"))));

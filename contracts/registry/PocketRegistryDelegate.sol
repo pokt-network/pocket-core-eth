@@ -14,43 +14,66 @@ contract PocketRegistryDelegate is BaseRegistry {
   address[] public previousDelegates;
 
   // Node state
-  address[] public registeredNodes;
   mapping (address => address) public userNode;
 
   function PocketRegistryDelegate() {
     owner = msg.sender;
   }
 
-  function registerNode() {
+  function registerNode(address _nodeAddress, string[] _supportedTokens, string _url, uint8 _port, uint _index) private{
 
     // TODO: Permissions
     // TODO: Check if address for relay already exists
     // TODO: Dynamic burn amount
     // TODO: Check if address is already registered
-    tokenAddress.call(bytes4(sha3("burn(uint256,address)")),1,msg.sender);
-    // TODO: instead of using a URL, we need to fetch the node metadata from the node contract
-    register(msg.sender, "URL");
 
-    // TODO: Return the newly created Node
+    registerNodeRecord(_nodeAddress, _supportedTokens, _url, _port, _index);
+
     // Cannot return values due to delegatecall limitations. See https://ethereum.stackexchange.com/questions/8099/delegatecall-and-function-return-values
-    createNodeContract();
+    /* createNodeContract(); */
   }
 
-  function createNodeContract () private {
+  function registerOracle(address _nodeAddress, string[] _supportedTokens, string _url, uint8 _port, uint _index) private{
+
+    registerOracleRecord(_nodeAddress, _supportedTokens, _url, _port, _index);
+
+  }
+
+  function createNodeContract(string[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
+
+    tokenAddress.call(bytes4(sha3("burn(uint256,address)")),1,msg.sender);
 
     PocketNode newNode = new PocketNode();
     // TODO: nodeDelegateAddress should only get set once per upgrade
+    newNode.supportedTokens(_supportedTokens)
+    newNode.url(_url)
+    newNode.port(_port)
+    newNode.isRelayer(_isRelayer)
+    newNode.isOracle(_isOracle)
     newNode.changeDelegate(nodeDelegateAddress);
     newNode.setOwner(msg.sender);
     newNode.setTokenAddress(tokenAddress);
     userNode[msg.sender] = newNode;
-    registeredNodes.push(newNode);
+
+    if newNode.isRelayer {
+      registeredNodes.push(newNode)
+      registerNodeRecord(newNode.address, newNode.supportedTokens, newNode.url, newNode.port, registeredNodes.length);
+    }
+
+    if newNode.isOracle {
+      registeredOracles.push(newNode)
+      registerOracleRecord(newNode.address, newNode.supportedTokens, newNode.url, newNode.port, registeredNodes.length);
+    }
+
   }
 
   function getLiveNodes() constant returns (address[]) {
     return registeredNodes;
   }
 
+  function getLiveOracles() constant returns (address[]) {
+    return registeredOracles;
+  }
 
   function setTokenAddress(address _tokenAddress) {
     assert(owner == msg.sender);

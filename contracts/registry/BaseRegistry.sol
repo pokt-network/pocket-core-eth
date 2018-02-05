@@ -8,8 +8,9 @@ contract BaseRegistry {
 
     uint public creationTime = now;
 
-    // This struct keeps all data for a Record.
-    struct Record {
+    // TODO: Update both record structures with the new properties
+    // This struct keeps all data for a Node Record.
+    struct NodeRecord {
         // Keeps the address of this record creator.
         address owner;
         // Keeps the time when this record was created.
@@ -19,56 +20,117 @@ contract BaseRegistry {
         string url;
     }
 
+    // This struct keeps all data for a Oracle Record.
+    struct OracleRecord {
+        // Keeps the address of this record creator.
+        address owner;
+        // Keeps the time when this record was created.
+        uint time;
+        // Keeps the index of the keys array for fast lookup
+        uint keysIndex;
+        string url;
+    }
+
+    // List of registered Nodes
+    address[] public registeredNodes;
+
+    // List of registered Oracles
+    address[] public registeredOracles;
+
     // This mapping keeps the records of this Registry.
-    mapping(address => Record) records;
+    mapping(address => NodeRecord) nodeRecords;
 
-    // Keeps the total numbers of records in this Registry.
-    uint public numRecords;
+    // This mapping keeps the records of this Registry.
+    mapping(address => OracleRecord) oracleRecords;
 
-    // Keeps a list of all keys to interate the records.
-    address[] public keys;
+    // Keeps the total numbers of Node records in this Registry.
+    uint public numNodesRecords;
 
+    // Keeps the total numbers of Oracle records in this Registry.
+    uint public numOraclesRecords;
+
+    // Keeps a list of all keys to iterate the Node records.
+    address[] public nodeKeys;
+
+    // Keeps a list of all keys to iterate the Oracle records.
+    address[] public oracleKeys;
 
     modifier onlyOwner {
         if (msg.sender != owner) revert();
         _;
     }
 
-
+    // This is the function that actually insert a record.
+    function registerNodeRecord(address key, string[] _supportedTokens, string _url, uint8 _port, uint _index) {
+        if (nodeRecords[key].time == 0) {
+            nodeRecords[key].time = now;
+            nodeRecords[key].owner = msg.sender;
+            nodeRecords[key].keysIndex = nodeKeys.length;
+            nodeKeys.length++;
+            nodeKeys[nodeKeys.length - 1] = nodeKeys;
+            nodeRecords[key].url = url;
+            numNodesRecords++;
+        } else {
+          delete registeredNodes[index];
+          // TODO: throw a more distinctive message
+          revert();
+        }
+    }
 
     // This is the function that actually insert a record.
-    function register(address key, string url) {
-        if (records[key].time == 0) {
-            records[key].time = now;
-            records[key].owner = msg.sender;
-            records[key].keysIndex = keys.length;
-            keys.length++;
-            keys[keys.length - 1] = key;
-            records[key].url = url;
-            numRecords++;
+    function registerOracleRecord(address key, string[] _supportedTokens, string _url, uint8 _port, uint _index) {
+        if (oracleRecords[key].time == 0) {
+            oracleRecords[key].time = now;
+            oracleRecords[key].owner = msg.sender;
+            oracleRecords[key].keysIndex = oracleKeys.length;
+            oracleKeys.length++;
+            oracleKeys[oracleKeys.length - 1] = key;
+            oracleRecords[key].url = url;
+            numOraclesRecords++;
         } else {
-            // TODO: throw a more distinctive message
-            revert();
+          delete registeredOracles[index];
+          // TODO: throw a more distinctive message
+          revert();
         }
     }
 
-    // Updates the values of the given record.
-    function update(address key, string url) {
+    // Updates the values of the given Node record.
+    function updateNode(address key, string url) {
         // Only the owner can update his record.
-        if (records[key].owner == msg.sender) {
-            records[key].url = url;
+        if (nodeRecords[key].owner == msg.sender) {
+            nodeRecords[key].url = url;
         }
     }
 
-    // Unregister a given record
-    function unregister(address key) {
-        if (records[key].owner == msg.sender) {
-            uint keysIndex = records[key].keysIndex;
-            delete records[key];
-            numRecords--;
-            keys[keysIndex] = keys[keys.length - 1];
-            records[keys[keysIndex]].keysIndex = keysIndex;
-            keys.length--;
+    // Updates the values of the given Oracle record.
+    function updateOracle(address key, string url) {
+        // Only the owner can update his record.
+        if (oracleRecords[key].owner == msg.sender) {
+            oracleRecords[key].url = url;
+        }
+    }
+
+    // Unregister a given Node record
+    function unregisterNode(address key) {
+        if (nodeRecords[key].owner == msg.sender) {
+            uint keysIndex = nodeRecords[key].keysIndex;
+            delete nodeRecords[key];
+            numNodesRecords--;
+            nodeKeys[keysIndex] = nodeKeys[nodeKeys.length - 1];
+            nodeRecords[nodeKeys[keysIndex]].keysIndex = keysIndex;
+            nodeKeys.length--;
+        }
+    }
+
+    // Unregister a given Oracle record
+    function unregisterOracle(address key) {
+        if (oracleRecords[key].owner == msg.sender) {
+            uint keysIndex = oracleRecords[key].keysIndex;
+            delete oracleRecords[key];
+            numOraclesRecords--;
+            oracleKeys[keysIndex] = oracleKeys[oracleKeys.length - 1];
+            oracleRecords[oracleKeys[keysIndex]].keysIndex = keysIndex;
+            oracleKeys.length--;
         }
     }
 
@@ -81,21 +143,41 @@ contract BaseRegistry {
         }
     }
 
-    // Tells whether a given key is registered.
-    function isRegistered(address key) returns(bool) {
-        return records[key].time != 0;
+    // Tells whether a given Node key is registered.
+    function isRegisteredNode(address key) returns(bool) {
+        return nodeRecords[key].time != 0;
     }
 
-    function getRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string url) {
-        Record record = records[keys[rindex]];
-        key = keys[rindex];
+    // Tells whether a given Oracle key is registered.
+    function isRegisteredOracle(address key) returns(bool) {
+        return oracleRecords[key].time != 0;
+    }
+
+    function getNodeRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string url) {
+        Record record = nodeRecords[nodeKeys[rindex]];
+        key = nodeKeys[rindex];
         owner = record.owner;
         time = record.time;
         url = record.url;
     }
 
-    function getRecord(address key) returns(address owner, uint time, string url) {
-        Record record = records[key];
+    function getOracleRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string url) {
+        Record record = oracleRecords[keys[rindex]];
+        key = oracleKeys[rindex];
+        owner = record.owner;
+        time = record.time;
+        url = record.url;
+    }
+
+    function getNodeRecord(address key) returns(address owner, uint time, string url) {
+        Record record = nodeRecords[key];
+        owner = record.owner;
+        time = record.time;
+        url = record.url;
+    }
+
+    function getOracleRecord(address key) returns(address owner, uint time, string url) {
+        Record record = oracleRecords[key];
         owner = record.owner;
         time = record.time;
         url = record.url;
@@ -104,15 +186,23 @@ contract BaseRegistry {
     // Returns the owner of the given record. The owner could also be get
     // by using the function getRecord but in that case all record attributes
     // are returned.
-    function getOwner(address key) returns(address) {
-        return records[key].owner;
+    function getNodeOwner(address key) returns(address) {
+        return nodeRecords[key].owner;
+    }
+
+    function getOracleOwner(address key) returns(address) {
+        return oracleRecords[key].owner;
     }
 
     // Returns the registration time of the given record. The time could also
     // be get by using the function getRecord but in that case all record attributes
     // are returned.
-    function getTime(address key) returns(uint) {
-        return records[key].time;
+    function getNodeTime(address key) returns(uint) {
+        return nodeRecords[key].time;
+    }
+
+    function getOracleTime(address key) returns(uint) {
+        return oracleRecords[key].time;
     }
 
     // Registry owner can use this function to withdraw any value owned by
