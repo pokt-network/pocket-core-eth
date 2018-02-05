@@ -39,8 +39,13 @@ contract PocketRegistryDelegate is BaseRegistry {
 
   }
 
-  function createNodeContract(string[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
-
+  function createNodeOracle(string[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
+    require(_supportedTokens.count > 0)
+    require(_url.length > 0)
+    require(_port > 0)
+    require(_isRelayer)
+    require(_isOracle)
+    
     tokenAddress.call(bytes4(sha3("burn(uint256,address)")),1,msg.sender);
 
     PocketNode newNode = new PocketNode();
