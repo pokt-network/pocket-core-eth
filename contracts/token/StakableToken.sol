@@ -52,14 +52,6 @@ contract StakableToken is StandardToken {
 
   function throttle(address _stakerAddress) returns (bool success) {
 
-    // TODO: Permissions
-    //Must stake at least 1 PKT
-    require(stakedAmount[_stakerAddress] > 0);
-    // check if current throttle epoch needs to be reset
-    if (block.number >= throttleResetBlock) {
-      resetThrottleEpoch(_stakerAddress);
-    }
-
     // Get current epoch state of staker
     uint256 currentEpochTransactionCount = epochTransactionCount[_stakerAddress];
     uint256 currentStakedAmount = stakedAmount[_stakerAddress];
@@ -80,7 +72,14 @@ contract StakableToken is StandardToken {
 
   }
 
+  // TO-DO: Figure out incentives for resetting the epoch
   function resetThrottleEpoch(address _stakerAddress) {
+    //Must stake at least 1 PKT
+    require(stakedAmount[_stakerAddress] > 0);
+    // check if current throttle epoch needs to be reset
+    require(block.number >= throttleResetBlock);
+
+    // TODO: DO FUNCTION
     // TODO: Permissions
     uint blockNumber = block.number;
 
