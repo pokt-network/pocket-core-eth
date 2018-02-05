@@ -900,24 +900,17 @@
       "address": "0x92dfbcce56b0db0cc2143105beccf2685ffeb9e5",
       "updated_at": 1511964427675
     },
-<<<<<<< HEAD
     "1517532799973": {
       "events": {},
       "links": {},
       "address": "0xa535ba14821ada5fa42bbdfc8fda51eeb9999309"
+    },
+    "1517845999272": {
+      "events": {},
+      "links": {},
+      "address": "0xd62dccedef504ed760ecd50f07733598de7f98ac"
     }
   },
   "schemaVersion": "1.0.1",
-  "updatedAt": "2018-02-02T23:20:04.118Z"
-=======
-    "1514200980620": {
-      "events": {},
-      "links": {},
-      "address": "0x38e5521c5a0709fbef24a13b9c358f33c7930e86",
-      "updated_at": 1514204880621
-    }
-  },
-  "schema_version": "0.0.5",
-  "updated_at": 1514204880621
->>>>>>> 2c807beca0e26e11e5f09cf2d76694eb17224e52
+  "updatedAt": "2018-02-05T16:05:50.734Z"
 }

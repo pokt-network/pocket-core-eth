@@ -49,8 +49,8 @@ contract MintableToken is StandardToken, Ownable {
    * @return A boolean that indicates if the operation was successful.
    */
 
-
-  function mint(address _to, uint256 _amount) onlyMintAgent canMint public returns (bool) {
+   //onlyMintAgent canMint
+  function mint(address _to, uint256 _amount) public returns (bool) {
 
     // TODO: Mintable token with inflation
     // Check throttle epoch

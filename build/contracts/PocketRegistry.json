@@ -3036,42 +3036,17 @@
       "address": "0xd29690e16b7619d1d2024029f5ca8d31b4f951de",
       "updated_at": 1511964427675
     },
-<<<<<<< HEAD
     "1517532799973": {
       "events": {},
       "links": {},
       "address": "0x69c5d76454f86a426ab21424def9994c7353eb7d"
+    },
+    "1517845999272": {
+      "events": {},
+      "links": {},
+      "address": "0x4e084244accd6b7f56d38639af2eba12cc3ced2a"
     }
   },
   "schemaVersion": "1.0.1",
-  "updatedAt": "2018-02-02T23:20:04.121Z"
-=======
-    "1514200980620": {
-      "events": {
-        "0xef9fc1dee6010109e6e3b21e51d44028e246dbad8a5a71ea192a30b19e1f457f": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "name": "oldAddress",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "name": "newAddress",
-              "type": "address"
-            }
-          ],
-          "name": "DelegateChanged",
-          "type": "event"
-        }
-      },
-      "links": {},
-      "address": "0x8a3dbee6c732858de7c36075a37ffadade771de7",
-      "updated_at": 1514204880613
-    }
-  },
-  "schema_version": "0.0.5",
-  "updated_at": 1514204880613
->>>>>>> 2c807beca0e26e11e5f09cf2d76694eb17224e52
+  "updatedAt": "2018-02-05T16:05:50.724Z"
 }
