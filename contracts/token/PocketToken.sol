@@ -24,7 +24,7 @@ contract PocketToken is MintableToken, BurnableToken, ThrottleableToken {
     decimals = 18;
     version = "0.1";
 
-    //resetThrottleEpoch(msg.sender);
+    resetThrottleEpoch(msg.sender);
 
   }
 
