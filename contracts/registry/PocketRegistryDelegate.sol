@@ -1,10 +1,9 @@
 pragma solidity ^0.4.11;
 
-import "./BaseRegistry.sol";
 import "../token/PocketToken.sol";
 import "../node/PocketNode.sol";
 
-contract PocketRegistryDelegate is BaseRegistry {
+contract PocketRegistryDelegate is PocketRegistry {
 
   // Address state
   address public owner;
@@ -18,25 +17,6 @@ contract PocketRegistryDelegate is BaseRegistry {
 
   function PocketRegistryDelegate() {
     owner = msg.sender;
-  }
-
-  function registerNode(address _nodeAddress, string[] _supportedTokens, string _url, uint8 _port, uint _index) private{
-
-    // TODO: Permissions
-    // TODO: Check if address for relay already exists
-    // TODO: Dynamic burn amount
-    // TODO: Check if address is already registered
-
-    registerNodeRecord(_nodeAddress, _supportedTokens, _url, _port, _index);
-
-    // Cannot return values due to delegatecall limitations. See https://ethereum.stackexchange.com/questions/8099/delegatecall-and-function-return-values
-    /* createNodeContract(); */
-  }
-
-  function registerOracle(address _nodeAddress, string[] _supportedTokens, string _url, uint8 _port, uint _index) private{
-
-    registerOracleRecord(_nodeAddress, _supportedTokens, _url, _port, _index);
-
   }
 
   function createNodeContract(string[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
@@ -60,34 +40,122 @@ contract PocketRegistryDelegate is BaseRegistry {
     newNode.setTokenAddress(tokenAddress);
     userNode[msg.sender] = newNode;
 
-    if (newNode.isRelayer) {
-      registeredNodes.push(newNode);
-      registerNode(newNode.address, newNode.supportedTokens, newNode.url, newNode.port, registeredNodes.length);
+    registeredNodes.push(newNode);
+    registerNode(newNode.address, newNode.supportedTokens, newNode.url, newNode.port, registeredNodes.length);
+
+  }
+
+  // This is the function that actually insert a record.
+  function registerNode(address key, string[] _supportedTokens, string _url, uint8 _port, uint _index) {
+    // TODO: Permissions
+    // TODO: Check if address for relay already exists
+    // TODO: Dynamic burn amount
+    // TODO: Check if address is already registered
+    if (nodeRecords[key].time == 0) {
+      nodeRecords[key].time = now;
+      nodeRecords[key].owner = msg.sender;
+      nodeRecords[key].keysIndex = nodeKeys.length;
+      nodeKeys.length++;
+      nodeKeys[nodeKeys.length - 1] = nodeKeys;
+      nodeRecords[key].url = url;
+      numNodeRecords++;
+      } else {
+        delete registeredNodes[index];
+        // TODO: throw a more distinctive message
+        revert();
+      }
     }
 
-    if (newNode.isOracle) {
-      registeredOracles.push(newNode);
-      registerOracle(newNode.address, newNode.supportedTokens, newNode.url, newNode.port, registeredNodes.length);
+    // Updates the values of the given Node record.
+    function updateNode(address key, string url) {
+      // Only the owner can update his record.
+      if (nodeRecords[key].owner == msg.sender) {
+        nodeRecords[key].url = url;
+      }
     }
 
-  }
+    // Unregister a given Node record
+    function unregisterNode(address key) {
+      if (nodeRecords[key].owner == msg.sender) {
+        uint keysIndex = nodeRecords[key].keysIndex;
+        delete nodeRecords[key];
+        numNodeRecords--;
+        nodeKeys[keysIndex] = nodeKeys[nodeKeys.length - 1];
+        nodeRecords[nodeKeys[keysIndex]].keysIndex = keysIndex;
+        nodeKeys.length--;
+      }
+    }
 
-  function getLiveNodes() constant returns (address[]) {
-    return registeredNodes;
-  }
+    // Transfer ownership of a given record.
+    function transfer(address key, address newOwner) {
+      if (nodeRecords[key].owner == msg.sender) {
+        nodeRecords[key].owner = newOwner;
+        } else {
+          revert();
+        }
+      }
 
-  function getLiveOracles() constant returns (address[]) {
-    return registeredOracles;
-  }
+      // Tells whether a given Node key is registered.
+      function isRegisteredNode(address key) returns(bool) {
+        return nodeRecords[key].time != 0;
+      }
 
-  function setTokenAddress(address _tokenAddress) {
-    assert(owner == msg.sender);
-    tokenAddress = _tokenAddress;
-  }
+      function getNodeRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string url) {
+        Record record = nodeRecords[nodeKeys[rindex]];
+        key = nodeKeys[rindex];
+        owner = record.owner;
+        time = record.time;
+        url = record.url;
+      }
 
-  function setNodeDelegateAddress(address _nodeDelegateAddress) {
-    assert(owner == msg.sender);
-    nodeDelegateAddress = _nodeDelegateAddress;
-  }
+      function getNodeRecord(address key) returns(address owner, uint time, string url) {
+        Record record = nodeRecords[key];
+        owner = record.owner;
+        time = record.time;
+        url = record.url;
+      }
 
-}
+      // Returns the owner of the given record. The owner could also be get
+      // by using the function getRecord but in that case all record attributes
+      // are returned.
+      function getNodeOwner(address key) returns(address) {
+        return nodeRecords[key].owner;
+      }
+
+      // Returns the registration time of the given record. The time could also
+      // be get by using the function getRecord but in that case all record attributes
+      // are returned.
+      function getNodeTime(address key) returns(uint) {
+        return nodeRecords[key].time;
+      }
+
+      // Registry owner can use this function to withdraw any value owned by
+      // the registry.
+      function withdraw(address to, uint value) onlyOwner {
+        if (!to.send(value)) revert();
+      }
+
+      function kill() onlyOwner {
+        suicide(owner);
+      }
+
+      // Get list of nodes that are currently relaying transactions
+      function getLiveNodes() constant returns (address[]) {
+        return registeredNodes;
+      }
+
+      function getCurrentNode () constant returns (address) {
+        return userNode[msg.sender];
+      }
+
+      function setTokenAddress(address _tokenAddress) {
+        assert(owner == msg.sender);
+        tokenAddress = _tokenAddress;
+      }
+
+      function setNodeDelegateAddress(address _nodeDelegateAddress) {
+        assert(owner == msg.sender);
+        nodeDelegateAddress = _nodeDelegateAddress;
+      }
+
+    }
