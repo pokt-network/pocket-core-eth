@@ -1,17 +1,23 @@
 pragma solidity ^0.4.11;
 
 import "./StakableToken.sol";
+import "installed_contracts/zeppelin/contracts/token/MintableToken.sol";
+
 
 // To throttle, token must be able to stake
-contract ThrottleableToken is StakableToken {
+contract ThrottleableToken is StakableToken, MintableToken {
 
   // Mapping of address staking => count of transactions in current throttle epoch
   mapping (address => uint256) public epochTransactionCount;
-
   // Throttle epoch state: epochTransactionCount gets reset after end of each epoch
   uint public throttleStartBlock;
   uint public throttleResetBlock;
   uint public throttleEpoch;
+
+  uint public currentBlockEpoch;
+  uint public constant EPOCH_HALVING = 1593818;
+  uint public mintReward = 2850;
+  uint public epochCount = 1;
 
   function ThrottleableToken () {
     //constructor
@@ -33,6 +39,9 @@ contract ThrottleableToken is StakableToken {
     // Use velocity and supply to determine this coefficient
     uint256 throttleCoefficient = currentStakedAmount * 2;
 
+    if (block.number >= throttleResetBlock) {
+      epochTransactionCount[_stakerAddress] = 0;
+    }
     // Luis: Save gas, just save the coefficient once and reset it when the throttle resets
     if (currentEpochTransactionCount > throttleCoefficient) {
       //resetThrottleEpoch(_stakerAddress);
@@ -57,10 +66,19 @@ contract ThrottleableToken is StakableToken {
 
     // TODO: calculate reset dynamically
     throttleResetBlock = blockNumber += 10;
-
     throttleEpoch += 1;
-    // Reset count on new epoch
-    epochTransactionCount[_stakerAddress] = 0;
+
+
+    if(currentBlockEpoch + EPOCH_HALVING >= block.number) {
+      updateMintReward()
+    }
+  }
+
+  function updateMintReward() private {
+
+    require(epochCount <= 10);
+    mintReward = mintReward / 2;
+    epochCount += 1;
   }
 
   function getThrottleStartBlock() constant returns (uint) {
