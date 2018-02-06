@@ -13,7 +13,7 @@ contract StakableToken is StandardToken {
   mapping (address => uint256) public stakedAmount;
   mapping (address => uint256) public nodeStakedAmount;
   mapping (address => uint256) public oracleStakedAmount;
-  mapping (address => uint256) public investorStakedAmount;
+  mapping (address => mapping (address => uint256)) public investorStakedAmount;
 
   // Interface for checking whether stakers are registeredNodes or registeredOracles
   RegistryInterface public registry;
@@ -51,10 +51,9 @@ contract StakableToken is StandardToken {
 
   function nodeStake(uint256 _value) returns (bool success) {
     // TODO: Permissions
-    if (registry.isNodeRegistered(msg.sender) == true) revert();
     require(_value > 0);
+    if (registry.isNodeRegistered(msg.sender) == true) revert();
     // TODO: Timelock stake
-
     balances[msg.sender] -= _value;
     nodeStakedAmount[msg.sender] += _value;
     Staked(msg.sender, _value);
@@ -62,7 +61,7 @@ contract StakableToken is StandardToken {
   }
 
   function releaseNodeStake(uint256 _value) returns (bool success) {
-    require(_value <= nodeStakedAmount);
+    require(_value <= nodeStakedAmount[msg.sender]);
     // TODO: Permissions
     // TODO: Timelock stake
     nodeStakedAmount[msg.sender] -= _value;
@@ -84,7 +83,7 @@ contract StakableToken is StandardToken {
   }
 
   function releaseOracleStake(uint256 _value) returns (bool success) {
-    require(_value <= nodeStakedAmount);
+    require(_value <= oracleStakedAmount[msg.sender]);
     // TODO: Permissions
     // TODO: Timelock stake
     oracleStakedAmount[msg.sender] -= _value;
@@ -95,34 +94,35 @@ contract StakableToken is StandardToken {
 
   function stakeOnBehalf(uint256 _value, bool _isRelayer, bool _isOracle, bool _isDeveloper) returns (bool success) {
     // Stake on behalf one person at a time
-      if(_isRelayer == true && _isOracle == false && _isDeveloper == false) {
-        require(_value > 0);
-        // TODO: Timelock stake
+    if(_isRelayer == true && _isOracle == false && _isDeveloper == false) {
+      require(_value > 0);
+      // TODO: Timelock stake
 
-        balances[msg.sender] -= _value;
-        nodeStakedAmount[msg.sender] += _value;
-        investorStakedAmount[msg.sender] += _value;
-        Staked(msg.sender, _value);
-        return true;
-      }
-      if (_isRelayer == false && _isOracle == true && _isDeveloper == false) {
-        require(_value > 0);
-        // TODO: Timelock stake
-        balances[msg.sender] -= _value;
-        oracleStakedAmount[msg.sender] += _value;
-        investorStakedAmount[msg.sender] += _value;
-        Staked(msg.sender, _value);
-        return true;
-      }
-      if (_isRelayer == false && _isOracle == false && _isDeveloper == true) {
-        require(_value > 0);
-        // TODO: Timelock stake
-        balances[msg.sender] -= _value;
-        stakedAmount[msg.sender] += _value;
-        investorStakedAmount[msg.sender] += _value;
-        Staked(msg.sender, _value);
-        return true;
-          }
+      balances[msg.sender] -= _value;
+      nodeStakedAmount[msg.sender] += _value;
+      investorStakedAmount[msg.sender] += _value;
+      Staked(msg.sender, _value);
+      return true;
+    }
+    if (_isRelayer == false && _isOracle == true && _isDeveloper == false) {
+      require(_value > 0);
+      // TODO: Timelock stake
+      balances[msg.sender] -= _value;
+      oracleStakedAmount[msg.sender] += _value;
+      investorStakedAmount[msg.sender] += _value;
+      Staked(msg.sender, _value);
+      return true;
+    }
+    if (_isRelayer == false && _isOracle == false && _isDeveloper == true) {
+      require(_value > 0);
+      // TODO: Timelock stake
+      balances[msg.sender] -= _value;
+      stakedAmount[msg.sender] += _value;
+      investorStakedAmount[msg.sender] += _value;
+      Staked(msg.sender, _value);
+      return true;
+        }
+
   }
 
 }
