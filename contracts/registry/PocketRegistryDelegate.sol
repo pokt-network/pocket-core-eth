@@ -3,7 +3,7 @@ pragma solidity ^0.4.11;
 import "../token/PocketToken.sol";
 import "../node/PocketNode.sol";
 
-contract PocketRegistryDelegate is PocketRegistry {
+contract PocketRegistryDelegate {
 
   // Address state
   address public owner;
@@ -41,82 +41,72 @@ contract PocketRegistryDelegate is PocketRegistry {
     userNode[msg.sender] = newNode;
 
     registeredNodes.push(newNode);
-    registerNode(newNode.address, newNode.supportedTokens, newNode.url, newNode.port, newNode.isRelayer, newNode.isOracle, registeredNodes.length);
+    registerNode(newNode.address, newNode.supportedTokens, newNode.url, newNode.port, newNode.isRelayer, newNode.isOracle);
 
   }
 
   // This is the function that actually insert a record.
-  function registerNode(address key, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle, uint _index) {
+  function registerNode(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
     // TODO: Permissions
     // TODO: Dynamic burn amount
     // TODO: Check if address is already registered
-    if (nodeRecords[key].time == 0) {
-      nodeRecords[key].time = now;
-      nodeRecords[key].owner = msg.sender;
-      nodeRecords[key].keysIndex = nodeKeys.length;
-      nodeKeys.length++;
-      nodeKeys[nodeKeys.length - 1] = nodeKeys;
-      nodeRecords[key].supportedTokens = _supportedTokens;
-      nodeRecords[key].url = _url;
-      nodeRecords[key].port = _port;
-      nodeRecords[key].isRelayer = _isRelayer;
-      nodeRecords[key].isOracle = _isOracle;
-      numNodeRecords++;
+    if (nodeRecords[_nodeAddress].time == 0) {
+      nodeRecords[_nodeAddress].time = now;
+      nodeRecords[_nodeAddress].owner = msg.sender;
+      nodeRecords[_nodeAddress].keysIndex = nodeRecordsIndex.length;
+      nodeRecordsIndex.length++;
+      nodeRecordsIndex[nodeRecordsIndex.length - 1] = nodeRecordsIndex;
+      nodeRecords[_nodeAddress].supportedTokens = _supportedTokens;
+      nodeRecords[_nodeAddress].url = _url;
+      nodeRecords[_nodeAddress].port = _port;
+      nodeRecords[_nodeAddress].isRelayer = _isRelayer;
+      nodeRecords[_nodeAddress].isOracle = _isOracle;
       } else {
-        delete registeredNodes[_index];
+        delete registeredNodes[registeredNodes.length - 1];
         // TODO: throw a more distinctive message
         revert();
       }
     }
 
     // Updates the values of the given Node record.
-    function updateNode(address key, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle, uint _index) {
+    function updateNode(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle, uint _index) {
       // Only the owner can update his record.
-      require(nodeRecords[key].owner == msg.sender)
-      nodeRecords[key].supportedTokens = _supportedTokens;
-      nodeRecords[key].url = _url;
-      nodeRecords[key].port = _port;
-      nodeRecords[key].isRelayer = _isRelayer;
-      nodeRecords[key].isOracle = _isOracle;
-      numNodeRecords++;
+      require(nodeRecords[_nodeAddress].owner == msg.sender)
+      nodeRecords[_nodeAddress].supportedTokens = _supportedTokens;
+      nodeRecords[_nodeAddress].url = _url;
+      nodeRecords[_nodeAddress].port = _port;
+      nodeRecords[_nodeAddress].isRelayer = _isRelayer;
+      nodeRecords[_nodeAddress].isOracle = _isOracle;
     }
 
     // Unregister a given Node record
-    function unregisterNode(address key) {
-      if (nodeRecords[key].owner == msg.sender) {
-        uint keysIndex = nodeRecords[key].keysIndex;
-        delete nodeRecords[key];
-        numNodeRecords--;
-        nodeKeys[keysIndex] = nodeKeys[nodeKeys.length - 1];
-        nodeRecords[nodeKeys[keysIndex]].keysIndex = keysIndex;
-        nodeKeys.length--;
+    function unregisterNode(address _nodeAddress) {
+      if (nodeRecords[_nodeAddress].owner == msg.sender) {
+        uint keysIndex = nodeRecords[_nodeAddress].keysIndex;
+        delete nodeRecords[_nodeAddress];
+        nodeRecordsIndex[keysIndex] = nodeRecordsIndex[nodeRecordsIndex.length - 1];
+        nodeRecords[nodeRecordsIndex[keysIndex]].keysIndex = keysIndex;
+        nodeRecordsIndex.length--;
       }
     }
 
     // Transfer ownership of a given record.
-    function transfer(address key, address newOwner) {
-      if (nodeRecords[key].owner == msg.sender) {
-        nodeRecords[key].owner = newOwner;
+    function transfer(address _nodeAddress, address newOwner) {
+      if (nodeRecords[_nodeAddress].owner == msg.sender) {
+        nodeRecords[_nodeAddress].owner = newOwner;
         } else {
           revert();
         }
       }
 
       // Tells whether a given Node key is registered.
-      function isRegisteredNode(address key) returns(bool) {
+      function isRegisteredNode(address _nodeAddress) returns(bool) {
         return nodeRecords[key].time != 0;
       }
 
-      function getNodeRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string url) {
-        Record record = nodeRecords[nodeKeys[rindex]];
-        key = nodeKeys[rindex];
-        owner = record.owner;
-        time = record.time;
-        url = record.url;
-      }
-
-      function getNodeRecord(address key) returns(address owner, uint time, string url) {
-        Record record = nodeRecords[key];
+      function getNodeRecordAtIndex(uint rindex) returns(address _nodeAddress) {
+        Record record = nodeRecords[nodeRecordsIndex[rindex]];
+        _nodeAddress = nodeRecordsIndex[rindex];
         owner = record.owner;
         time = record.time;
         url = record.url;
@@ -125,15 +115,15 @@ contract PocketRegistryDelegate is PocketRegistry {
       // Returns the owner of the given record. The owner could also be get
       // by using the function getRecord but in that case all record attributes
       // are returned.
-      function getNodeOwner(address key) returns(address) {
-        return nodeRecords[key].owner;
+      function getNodeOwner(address _nodeAddress) returns(address owner) {
+        return nodeRecords[_nodeAddress].owner;
       }
 
       // Returns the registration time of the given record. The time could also
       // be get by using the function getRecord but in that case all record attributes
       // are returned.
-      function getNodeTime(address key) returns(uint) {
-        return nodeRecords[key].time;
+      function getNodeTime(address _nodeAddress) returns(uint time) {
+        return nodeRecords[_nodeAddress].time;
       }
 
       // Registry owner can use this function to withdraw any value owned by

@@ -19,11 +19,8 @@ contract PocketRegistry is NodeCrud {
   // This mapping keeps the records of this Registry.
   mapping(address => Node) nodeRecords;
 
-  // Keeps the total numbers of Node records in this Registry.
-  uint public numNodeRecords;
-
   // Keeps a list of all keys to iterate the Node records.
-  address[] public nodeKeys;
+  address[] public nodeRecordsIndex;
 
   modifier onlyOwner {
     if (msg.sender != owner) revert();
@@ -57,8 +54,8 @@ contract PocketRegistry is NodeCrud {
   // By registering a Node, you are agreeing to be a relayer in the Pocket Network.
   // Three actions happen - you burn some PKT, register in the registry, and a Node contract gets created and assigned to your address
   // Registry allows network to keep track of current live nodes
-  function registerNode(address _key, string8[] _supportedTokens, string _url, uint8 _port, uint _index) {
-    require(delegateContract.delegatecall(bytes4(sha3("registerNode()")), _key, _supportedTokens, _url, _port, _index));
+  function registerNode(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, uint _index) {
+    require(delegateContract.delegatecall(bytes4(sha3("registerNode()")), _nodeAddress, _supportedTokens, _url, _port, _index));
   }
 
   function createNodeContract(string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
@@ -66,45 +63,41 @@ contract PocketRegistry is NodeCrud {
   }
 
   // Updates the values of the given Node record.
-  function updateNode(address key, string url) {
-    require(delegateContract.delegatecall(bytes4(sha3("updateNode()")), key, url));
+  function updateNode(address _nodeAddress, string url) {
+    require(delegateContract.delegatecall(bytes4(sha3("updateNode()")), _nodeAddress, url));
   }
 
   // Unregister a given Node record
-  function unregisterNode(address key) {
-    require(delegateContract.delegatecall(bytes4(sha3("unregisterNode()")), key));
+  function unregisterNode(address _nodeAddress) {
+    require(delegateContract.delegatecall(bytes4(sha3("unregisterNode()")), _nodeAddress));
   }
 
   // Transfer ownership of a given record.
-  function transfer(address key, address newOwner) {
-    require(delegateContract.delegatecall(bytes4(sha3("transfer()")), key, newOwner));
+  function transfer(address _nodeAddress, address newOwner) {
+    require(delegateContract.delegatecall(bytes4(sha3("transfer()")), _nodeAddress, newOwner));
   }
 
   // Tells whether a given Node key is registered.
-  function isRegisteredNode(address key) returns(bool) {
-    require(delegateContract.delegatecall(bytes4(sha3("isRegisteredNode()")), key));
+  function isRegisteredNode(address _nodeAddress) returns(bool) {
+    require(delegateContract.delegatecall(bytes4(sha3("isRegisteredNode()")), _nodeAddress));
   }
 
-  function getNodeRecordAtIndex(uint rindex) returns(address key, address owner, uint time, string url) {
+  function getNodeRecordAtIndex(uint rindex) returns(address key) {
     require(delegateContract.delegatecall(bytes4(sha3("getNodeRecordAtIndex()")), rindex));
-  }
-
-  function getNodeRecord(address key) returns(address owner, uint time, string url) {
-    require(delegateContract.delegatecall(bytes4(sha3("getNodeRecord()")), key));
   }
 
   // Returns the owner of the given record. The owner could also be get
   // by using the function getRecord but in that case all record attributes
   // are returned.
-  function getNodeOwner(address key) returns(address) {
-    require(delegateContract.delegatecall(bytes4(sha3("getNodeOwner()")), key));
+  function getNodeOwner(address _nodeAddress) returns(address) {
+    require(delegateContract.delegatecall(bytes4(sha3("getNodeOwner()")), _nodeAddress));
   }
 
   // Returns the registration time of the given record. The time could also
   // be get by using the function getRecord but in that case all record attributes
   // are returned.
-  function getNodeTime(address key) returns(uint) {
-    require(delegateContract.delegatecall(bytes4(sha3("getNodeTime()")), key));
+  function getNodeTime(address _nodeAddress) returns(uint) {
+    require(delegateContract.delegatecall(bytes4(sha3("getNodeTime()")), _nodeAddress));
   }
 
   // Registry owner can use this function to withdraw any value owned by
