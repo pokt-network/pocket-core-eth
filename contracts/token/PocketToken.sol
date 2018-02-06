@@ -2,11 +2,9 @@ pragma solidity ^0.4.11;
 
 import "installed_contracts/zeppelin/contracts/token/BurnableToken.sol";
 import "installed_contracts/zeppelin/contracts/token/MintableToken.sol";
-import "./StakableToken.sol";
 import "./ThrottleableToken.sol";
 
-
-contract PocketToken is StakableToken, MintableToken, BurnableToken, ThrottleableToken {
+contract PocketToken is MintableToken, BurnableToken, ThrottleableToken {
 
  // Human state
  string public name;
