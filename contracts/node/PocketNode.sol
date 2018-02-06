@@ -4,25 +4,21 @@ import "../relay/PocketRelay.sol";
 import "../token/PocketToken.sol";
 import "./RelayCrud.sol";
 
+contract PocketRegistryInterface {
+  function getRelayOracles() returns(address[] oracles);
+}
+
 contract PocketNode is RelayCrud {
 
-  // Public attributes
+  // Attributes
   address public ownerAddress;
   bool public isRelayer;
   bool public isOracle;
-  address public delegateContract;
-  address[] public previousDelegates;
-
-  /*
-   * Contract Events
-   */
-  event DelegateChanged(address oldAddress, address newAddress);
-
-  /*
-   * Contract functions
-   */
-
-  // TO-DO: Implement this
+  address public delegateContractAddress;
+  PocketRegistryInterface private registryInterface;
+  // Events
+  event LogRelayConcluded(bytes32 _relayId, address _relayer);
+  // Functions
   /**
    * Represents a PocketNode.
    * @constructor
@@ -34,54 +30,27 @@ contract PocketNode is RelayCrud {
     ownerAddress = _ownerAddress;
     isRelayer = _isRelayer;
     isOracle = _isOracle;
-    changeDelegate(_delegateAddress);
-  }
-
-  // TO-DO: Implement this
-  function createRelay() {
-
-  }
-
-  // TO-DO: Implement this
-  function submitRelayVote() {
-
+    delegateContractAddress = _delegateAddress;
+    registryInterface = PocketRegistryInterface(msg.sender);
   }
 
   /**
-   * Allows to change the PocketNodeDelegate contract that this PocketNode uses
-   * @param {address} _newDelegate - The address for the new delegate PocketNodeDelegate
+   * Creates a new relay through the delegateContract
+   * @param {bytes32} _txHash - The TX hash for the relayed transaction
+   * @param {bytes} _txTokenId - The token ID, e.g.: BTC, ETH, etc
+   * @param {address} _sender - The sender of the transaction
+   * @param {address} _pocketTokenAddress - The address for the PocketToken
    */
-  function changeDelegate(address _newDelegate) {
-    // Avoid setting up the same contract as delegate twice
-    require(_newDelegate != delegateContract);
-
-    // Registers new delegate
-    previousDelegates.push(delegateContract);
-    var oldDelegate = delegateContract;
-    delegateContract = _newDelegate;
-    DelegateChanged(oldDelegate, _newDelegate);
+  function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) {
+    delegateContractAddress.delegatecall(bytes4(sha3("createRelay()")), _txHash, _txTokenId, _sender, _pocketTokenAddress);
   }
 
-
-
-  /*
-
-  // Node contract is the contract that relayers will get assigned when signing up to the registry
-  // checkThrottle checks the staked amount of PKT that application has
-  // If not throttled, a relay contract will be created
-  function checkThrottle(address _throttleAddress) {
-    require(delegateContract.delegatecall(bytes4(sha3("checkThrottle(address)")), _throttleAddress));
+  /**
+   * Submits a relay vote from an oracle
+   * @param {bytes32} relayId - The id of the relay to vote on
+   * @param {bool} _vote - Whether or not the transaction was succesfully relayed
+   */
+  function submitRelayVote(address relayer, bytes32 relayId, bool _vote) {
+    delegateContractAddress.delegatecall(bytes4(sha3("submitRelayVote()")), relayer, relayId, _vote);
   }
-
-  function getRelays() constant returns (address[]) {
-    return activeRelays;
-  }
-
-  function setOwner(address _ownerAddress) {
-    require(delegateContract.delegatecall(bytes4(sha3("setOwner(address)")), _ownerAddress));
-  }
-
-  function setTokenAddress(address _tokenAddress) {
-    require(delegateContract.delegatecall(bytes4(sha3("setTokenAddress(address)")), _tokenAddress));
-  } */
 }
