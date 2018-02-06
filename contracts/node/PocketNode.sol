@@ -2,8 +2,9 @@ pragma solidity ^0.4.11;
 
 import "../relay/PocketRelay.sol";
 import "../token/PocketToken.sol";
+import "./RelayCrud.sol";
 
-contract PocketNode {
+contract PocketNode is RelayCrud {
 
   // Public attributes
   address public ownerAddress;
@@ -29,10 +30,11 @@ contract PocketNode {
    * @param {bool} _isRelayer - Determines wheter or not the new node is a Relayer
    * @param {bool} _isOracle - Determines wheter or not the new node is an Oracle
    */
-  function PocketNode(address _ownerAddress, bool _isRelayer, bool _isOracle) {
+  function PocketNode(address _ownerAddress, address _delegateAddress, bool _isRelayer, bool _isOracle) {
     ownerAddress = _ownerAddress;
     isRelayer = _isRelayer;
     isOracle = _isOracle;
+    changeDelegate(_delegateAddress);
   }
 
   // TO-DO: Implement this
