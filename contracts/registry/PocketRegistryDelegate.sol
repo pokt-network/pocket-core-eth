@@ -40,33 +40,33 @@ contract PocketRegistryDelegate is BaseRegistry {
   }
 
   function createNodeContract(string[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
-    require(_supportedTokens.count > 0)
-    require(_url.length > 0)
-    require(_port > 0)
-    require(_isRelayer)
-    require(_isOracle)
+    require(_supportedTokens.count > 0);
+    require(_url.length > 0);
+    require(_port > 0);
+    require(_isRelayer);
+    require(_isOracle);
 
     tokenAddress.call(bytes4(sha3("burn(uint256,address)")),1,msg.sender);
 
     PocketNode newNode = new PocketNode();
     // TODO: nodeDelegateAddress should only get set once per upgrade
-    newNode.supportedTokens(_supportedTokens)
-    newNode.url(_url)
-    newNode.port(_port)
-    newNode.isRelayer(_isRelayer)
-    newNode.isOracle(_isOracle)
+    newNode.supportedTokens(_supportedTokens);
+    newNode.url(_url);
+    newNode.port(_port);
+    newNode.isRelayer(_isRelayer);
+    newNode.isOracle(_isOracle);
     newNode.changeDelegate(nodeDelegateAddress);
     newNode.setOwner(msg.sender);
     newNode.setTokenAddress(tokenAddress);
     userNode[msg.sender] = newNode;
 
     if (newNode.isRelayer) {
-      registeredNodes.push(newNode)
+      registeredNodes.push(newNode);
       registerNode(newNode.address, newNode.supportedTokens, newNode.url, newNode.port, registeredNodes.length);
     }
 
     if (newNode.isOracle) {
-      registeredOracles.push(newNode)
+      registeredOracles.push(newNode);
       registerOracle(newNode.address, newNode.supportedTokens, newNode.url, newNode.port, registeredNodes.length);
     }
 
