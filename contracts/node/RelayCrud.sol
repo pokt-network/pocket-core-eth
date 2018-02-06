@@ -4,7 +4,7 @@ contract RelayCrud {
   // Attributes
   bytes32 currentRelayId;
   bytes32[] currentACRelays;
-  mapping(bytes32 => Relay) private relays;
+  mapping(bytes32 => Relay) public relays;
   bytes32[] private relayIndex;
   // Structs
   struct Relay {
@@ -13,13 +13,14 @@ contract RelayCrud {
     bytes txTokenId;
     address sender;
     address relayer;
-    bool[] oracleVotes;
+    mapping (address => bool) oracleVotes;
     bool approved;
     bool concluded;
     uint id;
+    uint votesCasted;
   }
   // Events
-  event LogRelayInsert(address[] _oracles, bytes32 _txHash, bytes _txTokenId, address _sender, address _relayer);
+  event LogRelayInsert(address[] _oracles, bytes32 _txHash, bytes _txTokenId, address _sender, address _relayer, bytes32 relayID);
   // Functions
   /**
    * Returns wheter or not the relay with this id exists
@@ -50,7 +51,7 @@ contract RelayCrud {
     relays[currentRelayId].approved = false;
     relays[currentRelayId].concluded = false;
     relays[currentRelayId].index = relayIndex.push(currentRelayId) - 1;
-    LogRelayInsert(_oracles, _txHash, _txTokenId, _sender, msg.sender);
+    LogRelayInsert(_oracles, _txHash, _txTokenId, _sender, msg.sender, currentRelayId);
     return relayIndex.length - 1;
   }
 
@@ -66,5 +67,14 @@ contract RelayCrud {
       }
     }
     return currentACRelays;
+  }
+
+  /**
+   * Returns the ID of the relay based on the index
+   * @params {uint} _index - the index to serch for
+   * @returns {bytes32} relayId - the id of the returned relay
+   */
+  function getRelayIDAtIndex(uint _index) public constant returns(bytes32 relayId) {
+    return relayIndex[_index];
   }
 }
