@@ -6,14 +6,9 @@ contract StakableToken is StandardToken {
 
   // Mapping of address staking => staked amount
   mapping (address => uint256) public stakedAmount;
-  // Mapping of address staking => count of transactions in current throttle epoch
-  mapping (address => uint256) public epochTransactionCount;
+  mapping (address => mapping (address => uint256)) public investorStakedAmount;
 
-  // Throttle epoch state: epochTransactionCount gets reset after end of each epoch
-  uint public throttleStartBlock;
-  uint public throttleResetBlock;
-  uint public throttleEpoch;
-
+  // Interface for checking whether stakers are registeredNodes or registeredOracles
   event Staked(address indexed _from, uint256 _value);
   event StakeReleased(address indexed _from, uint256 _value);
 
@@ -46,62 +41,24 @@ contract StakableToken is StandardToken {
   }
 
 
-  /*
-  * Core throttling functions
-  */
+  function stakeOnBehalf(address _investee, uint256 _value) returns (bool success) {
 
-  function throttle(address _stakerAddress) returns (bool success) {
-
-    // Get current epoch state of staker
-    uint256 currentEpochTransactionCount = epochTransactionCount[_stakerAddress];
-    uint256 currentStakedAmount = stakedAmount[_stakerAddress];
-
-    // Coefficient is how many transactions per throttle epoch are allowed
-    // TODO: dynamic coefficient calculation
-    // Use velocity and supply to determine this coefficient
-    uint256 throttleCoefficient = currentStakedAmount * 2;
-
-    // Luis: Save gas, just save the coefficient once and reset it when the throttle resets
-    if (currentEpochTransactionCount > throttleCoefficient) {
-      //resetThrottleEpoch(_stakerAddress);
-      return false;
-    } else {
-      epochTransactionCount[_stakerAddress] += 1;
-      return true;
-    }
+    // Stake on behalf one person at a time
+    balances[msg.sender] -= _value;
+    stakedAmount[_investee] += _value;
+    investorStakedAmount[msg.sender][_investee] += _value;
+    Staked(msg.sender, _value)
+    return true;
 
   }
 
-  // TO-DO: Figure out incentives for resetting the epoch
-  function resetThrottleEpoch(address _stakerAddress) {
-    //Must stake at least 1 PKT
-    require(stakedAmount[_stakerAddress] > 0);
-    // check if current throttle epoch needs to be reset
-    require(block.number >= throttleResetBlock);
+  function releaseStakeOnBehalf(address _investee, uint256 _value) returns (bool success) {
 
-    // TODO: DO FUNCTION
-    // TODO: Permissions
-    uint blockNumber = block.number;
-
-    // TODO: calculate reset dynamically
-    throttleResetBlock = blockNumber += 10;
-
-    throttleEpoch += 1;
-    // Reset count on new epoch
-    epochTransactionCount[_stakerAddress] = 0;
+    balances[msg.sender] += _value;
+    stakedAmount[_investee] -= _value;
+    investorStakedAmount[msg.sender][_investee] -= _value;
+    StakeReleased(msg.sender, _value);
+    return true;
   }
-
-  function getThrottleStartBlock() constant returns (uint) {
-    return throttleStartBlock;
-  }
-
-  function getThrottleResetBlock () constant returns (uint) {
-    return throttleResetBlock;
-  }
-
-  function getThrottleEpoch () constant returns (uint) {
-    return throttleEpoch;
-  }
-
 
 }

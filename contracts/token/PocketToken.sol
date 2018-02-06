@@ -1,11 +1,10 @@
 pragma solidity ^0.4.11;
 
-import "installed_contracts/zeppelin/contracts/token/StandardToken.sol";
 import "installed_contracts/zeppelin/contracts/token/BurnableToken.sol";
 import "installed_contracts/zeppelin/contracts/token/MintableToken.sol";
-import "./StakableToken.sol";
-//is BurnableToken, StakableToken, MintableToken
-contract PocketToken is StakableToken, MintableToken, BurnableToken {
+import "./ThrottleableToken.sol";
+
+contract PocketToken is MintableToken, BurnableToken, ThrottleableToken {
 
  // Human state
  string public name;
@@ -25,21 +24,8 @@ contract PocketToken is StakableToken, MintableToken, BurnableToken {
     decimals = 18;
     version = "0.1";
 
-    //resetThrottleEpoch(msg.sender);
+    resetThrottleEpoch(msg.sender);
 
   }
-
-  /* function mint(address _to, uint256 _amount)  {
-
-    // TODO: Mintable token with inflation
-    // Check throttle epoch
-    // Check relays sent during epoch
-    // Mint based on relays sent during epoch
-    totalSupply = totalSupply.add(_amount);
-    balances[_to] = balances[_to].add(_amount);
-    Mint(_to, _amount);
-    Transfer(0x0, _to, _amount);
-    //return true;
-  } */
 
 }
