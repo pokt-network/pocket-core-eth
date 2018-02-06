@@ -5,6 +5,14 @@ import 'installed_contracts/zeppelin/contracts/token/StandardToken.sol';
 import 'installed_contracts/zeppelin/contracts/ownership/Ownable.sol';
 
 
+contract RegistryInterface {
+  function getLiveNodes() constant returns (address[]);
+}
+
+contract NodeInterface {
+  mapping(bytes32 => Relay) public relays;
+  function getACRelays() public constant returns(bytes32[] acRelays);
+}
 
 
 /**
@@ -20,6 +28,10 @@ contract MintableToken is StandardToken, Ownable {
   mapping (address => bool) public mintAgents;
 
   bool public mintingFinished = false;
+  uint public nodeMintReward;
+  uint public totalMintReward = 2850;
+  RegistryInterface public registryInterface;
+
 
   event Mint(address indexed to, uint256 amount);
   event MintFinished();
@@ -49,8 +61,23 @@ contract MintableToken is StandardToken, Ownable {
    * @return A boolean that indicates if the operation was successful.
    */
 
-   //onlyMintAgent canMint
-  function mint(address _to, uint256 _amount) public returns (bool) {
+   //onlyMintAgent canMint address _to, uint256 _amount
+  function mint() private returns (bool) {
+    nodeMintReward = totalMintReward * (80 / 100);
+    address[] nodes = registryInterface.getLiveNodes();
+
+    for (uint i = 0; i < nodes.length; i++) {
+      bytes32[] relays = NodeInterface(nodes[i]).getACRelays();
+
+      if (relays.length > 0) {
+
+        uint256 reward = nodeMintReward / relays.length;
+        totalSupply = totalSupply.add(reward);
+        balances[i] = balances[i].add(reward);
+        Mint(i, reward);
+        Transfer(0x0, i, reward);
+      }
+    }
 
     // TODO: Mintable token with inflation
     // Check throttle epoch

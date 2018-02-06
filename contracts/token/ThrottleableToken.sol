@@ -16,7 +16,6 @@ contract ThrottleableToken is StakableToken, MintableToken {
 
   uint public currentBlockEpoch;
   uint public constant EPOCH_HALVING = 1593818;
-  uint public mintReward = 2850;
   uint public epochCount = 1;
 
   function ThrottleableToken () {
@@ -68,7 +67,7 @@ contract ThrottleableToken is StakableToken, MintableToken {
     throttleResetBlock = blockNumber += 10;
     throttleEpoch += 1;
 
-
+    mint();
     if(currentBlockEpoch + EPOCH_HALVING >= block.number) {
       updateMintReward()
     }
