@@ -36,6 +36,13 @@ contract PocketNodeDelegate {
     relays[relayId].votesCasted += 1;
     if(relays[relayId].votesCasted == relays[relayId].oracles.length) {
       relays[relayId].concluded = true;
+      relays[relayId].approved = true;
+      for (uint i = 0; i < relays[relayId].oracles.length; i++) {
+        if(relays[relayId].oracleVotes[relays[relayId].oracles[i]] == false) {
+          relays[relayId].approved = false;
+          return;
+        }
+      }
       LogRelayConcluded(relayId, relays[relayId].relayer);
     }
   }
