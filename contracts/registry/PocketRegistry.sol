@@ -9,7 +9,6 @@ contract PocketRegistry is NodeCrud {
   // Address state
   address public owner = msg.sender;
   uint public creationTime = now;
-  address public nodeDelegateAddress;
   address public tokenAddress;
   address public delegateContract;
   address[] public previousDelegates;
@@ -58,11 +57,11 @@ contract PocketRegistry is NodeCrud {
   // By registering a Node, you are agreeing to be a relayer in the Pocket Network.
   // Three actions happen - you burn some PKT, register in the registry, and a Node contract gets created and assigned to your address
   // Registry allows network to keep track of current live nodes
-  function registerNode(address _key, string[] _supportedTokens, string _url, uint8 _port, uint _index) {
+  function registerNode(address _key, string8[] _supportedTokens, string _url, uint8 _port, uint _index) {
     require(delegateContract.delegatecall(bytes4(sha3("registerNode()")), _key, _supportedTokens, _url, _port, _index));
   }
 
-  function createNodeContract(string[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
+  function createNodeContract(string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
     require(delegateContract.delegatecall(bytes4(sha3("createNodeContract()")), _supportedTokens, _url, _port, _isRelayer, _isOracle));
   }
 

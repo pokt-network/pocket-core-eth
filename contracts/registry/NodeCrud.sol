@@ -12,8 +12,12 @@ contract NodeCrud {
       uint time;
       // Keeps the index of the keys array for fast lookup.
       uint keysIndex;
+      // Keeps the node supported Tokens
+      string8[] supportedTokens;
       // Keeps the url of the node.
       string url;
+      // Keeps the port of the node.
+      uint8 port;
       // Keeps the boolean for the node preference if is a relayer or not.
       bool isRelayer;
       // Keeps the boolean for the node preference if is a oracle or not.

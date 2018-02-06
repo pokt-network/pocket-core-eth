@@ -19,7 +19,7 @@ contract PocketRegistryDelegate is PocketRegistry {
     owner = msg.sender;
   }
 
-  function createNodeContract(string[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
+  function createNodeContract(string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
     require(_supportedTokens.count > 0);
     require(_url.length > 0);
     require(_port > 0);
@@ -41,14 +41,13 @@ contract PocketRegistryDelegate is PocketRegistry {
     userNode[msg.sender] = newNode;
 
     registeredNodes.push(newNode);
-    registerNode(newNode.address, newNode.supportedTokens, newNode.url, newNode.port, registeredNodes.length);
+    registerNode(newNode.address, newNode.supportedTokens, newNode.url, newNode.port, newNode.isRelayer, newNode.isOracle, registeredNodes.length);
 
   }
 
   // This is the function that actually insert a record.
-  function registerNode(address key, string[] _supportedTokens, string _url, uint8 _port, uint _index) {
+  function registerNode(address key, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle, uint _index) {
     // TODO: Permissions
-    // TODO: Check if address for relay already exists
     // TODO: Dynamic burn amount
     // TODO: Check if address is already registered
     if (nodeRecords[key].time == 0) {
@@ -57,21 +56,29 @@ contract PocketRegistryDelegate is PocketRegistry {
       nodeRecords[key].keysIndex = nodeKeys.length;
       nodeKeys.length++;
       nodeKeys[nodeKeys.length - 1] = nodeKeys;
-      nodeRecords[key].url = url;
+      nodeRecords[key].supportedTokens = _supportedTokens;
+      nodeRecords[key].url = _url;
+      nodeRecords[key].port = _port;
+      nodeRecords[key].isRelayer = _isRelayer;
+      nodeRecords[key].isOracle = _isOracle;
       numNodeRecords++;
       } else {
-        delete registeredNodes[index];
+        delete registeredNodes[_index];
         // TODO: throw a more distinctive message
         revert();
       }
     }
 
     // Updates the values of the given Node record.
-    function updateNode(address key, string url) {
+    function updateNode(address key, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle, uint _index) {
       // Only the owner can update his record.
-      if (nodeRecords[key].owner == msg.sender) {
-        nodeRecords[key].url = url;
-      }
+      require(nodeRecords[key].owner == msg.sender)
+      nodeRecords[key].supportedTokens = _supportedTokens;
+      nodeRecords[key].url = _url;
+      nodeRecords[key].port = _port;
+      nodeRecords[key].isRelayer = _isRelayer;
+      nodeRecords[key].isOracle = _isOracle;
+      numNodeRecords++;
     }
 
     // Unregister a given Node record
