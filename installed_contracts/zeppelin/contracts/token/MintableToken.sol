@@ -22,78 +22,60 @@ contract NodeInterface {
  * Based on code by TokenMarketNet: https://github.com/TokenMarketNet/ico/blob/master/contracts/MintableToken.sol
  */
 
-contract MintableToken is StandardToken, Ownable {
+contract MintableToken is StandardToken {
 
   /** List of agents that are allowed to create new tokens */
-  mapping (address => bool) public mintAgents;
 
-  bool public mintingFinished = false;
   uint public nodeMintReward;
+  uint public oracleMintReward;
   uint public totalMintReward = 2850;
   RegistryInterface public registryInterface;
-
-
+  mapping (uint => bool) hasEpochMinted;
   event Mint(address indexed to, uint256 amount);
-  event MintFinished();
-  event MintingAgentChanged(address addr, bool state);
-
 
   function MintableToken () {
 
   }
-  modifier canMint() {
-    require(!mintingFinished);
-    _;
-  }
 
-  modifier onlyMintAgent() {
-    // Only crowdsale contracts are allowed to mint new tokens
-    if(!mintAgents[msg.sender]) {
-        throw;
-    }
-    _;
-  }
-
-  /**
-   * @dev Function to mint tokens
-   * @param _to The address that will receive the minted tokens.
-   * @param _amount The amount of tokens to mint.
-   * @return A boolean that indicates if the operation was successful.
-   */
 
    //onlyMintAgent canMint address _to, uint256 _amount
-  function mint() private returns (bool) {
-    nodeMintReward = totalMintReward * (80 / 100);
+  function mint() private {
+    nodeMintReward = totalMintReward * 0.8;
+    oracleMintReward = totalMintReward * 0.1;
+    epochResetterReward = totalMintReward * 0.1;
     address[] nodes = registryInterface.getLiveNodes();
+    uint256 reward = totalRelaysPerEpoch[currentEpoch] / nodeMintReward;
+    uint256 oracleReward = totalRelaysPerEpoch[currentEpoch] / oracleMintReward;
+
 
     for (uint i = 0; i < nodes.length; i++) {
-      bytes32[] relays = NodeInterface(nodes[i]).getACRelays();
+      // Relayer mint
+      if(nodes[i].isRelayer){
+        bytes32[] relays = NodeInterface(nodes[i]).getACRelays();
 
-      if (relays.length > 0) {
-
-        uint256 reward = nodeMintReward / relays.length;
-        totalSupply = totalSupply.add(reward);
-        balances[i] = balances[i].add(reward);
-        Mint(i, reward);
-        Transfer(0x0, i, reward);
-        return true;
+        if (relays.length > 0) {
+          totalSupply = totalSupply.add(reward);
+          balances[i] = balances[i].add(reward);
+          Mint(i, reward);
+          Transfer(0x0, i, reward);
+        }
       }
+
+      // Oracle mint
+      if(nodes[i].isOracle){
+        bytes32[] oracleConfirmations = NodeInterface(nodes[i]).getACORelays();
+        if (oracleConfirmations.length > 0) {
+          totalSupply = totalSupply.add(reward);
+          balances[i] = balances[i].add(reward);
+          Mint(i, oracleReward);
+          Transfer(0x0, i, reward);
+        }
+      }
+      // Function caller reward
+      totalSupply = totalSupply.add(reward);
+      balances[i] = balances[i].add(reward);
+      Mint(msg.sender, epochResetterReward);
+      Transfer(0x0, msg.sender, epochResetterReward);
     }
-  }
-
-
-  function setMintAgent(address addr, bool state) onlyOwner canMint public {
-  mintAgents[addr] = state;
-  MintingAgentChanged(addr, state);
-  }
-
-  /**
-   * @dev Function to stop minting new tokens.
-   * @return True if the operation was successful.
-   */
-  function finishMinting() onlyOwner public returns (bool) {
-    mintingFinished = true;
-    MintFinished();
-    return true;
   }
 }

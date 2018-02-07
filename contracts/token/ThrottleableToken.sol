@@ -8,15 +8,17 @@ import "installed_contracts/zeppelin/contracts/token/MintableToken.sol";
 contract ThrottleableToken is StakableToken, MintableToken {
 
   // Mapping of address staking => count of transactions in current throttle epoch
+
+  // should be epochRelayCount
   mapping (address => uint256) public epochTransactionCount;
   // Throttle epoch state: epochTransactionCount gets reset after end of each epoch
   uint public throttleStartBlock;
   uint public throttleResetBlock;
   uint public throttleEpoch;
-
-  uint public currentBlockEpoch;
+  mapping (uint => uint) public totalRelaysPerEpoch;
+  uint public currentEpochBlockStart;
   uint public constant EPOCH_HALVING = 1593818;
-  uint public epochCount = 1;
+  uint public globalEpochCount = 1;
 
   function ThrottleableToken () {
     //constructor
@@ -27,8 +29,12 @@ contract ThrottleableToken is StakableToken, MintableToken {
   * Core throttling functions
   */
 
+  /// @dev Acts as main function to check whether developer account using relay services has reached their maximum amount of relays in allotted amount of blocks
+  /// @param _stakerAddress that is being checked if needs to be throttled
   function throttle(address _stakerAddress) returns (bool success) {
 
+
+    // separate checking and state change
     // Get current epoch state of staker
     uint256 currentEpochTransactionCount = epochTransactionCount[_stakerAddress];
     uint256 currentStakedAmount = stakedAmount[_stakerAddress];
@@ -43,7 +49,6 @@ contract ThrottleableToken is StakableToken, MintableToken {
     }
     // Luis: Save gas, just save the coefficient once and reset it when the throttle resets
     if (currentEpochTransactionCount > throttleCoefficient) {
-      //resetThrottleEpoch(_stakerAddress);
       return false;
     } else {
       epochTransactionCount[_stakerAddress] += 1;
@@ -52,32 +57,32 @@ contract ThrottleableToken is StakableToken, MintableToken {
 
   }
 
-  // TO-DO: Figure out incentives for resetting the epoch
-  function resetThrottleEpoch(address _stakerAddress) {
-    //Must stake at least 1 PKT
-    require(stakedAmount[_stakerAddress] > 0);
+  /// @dev Separate "mining" function separate from individual throttle counts.
+  /// When mint() gets calculated, first successful caller of this method mints 10%
+  /// of token reward. Acts as catalyst for entire network.
+  function resetThrottleEpoch() {
+
     // check if current throttle epoch needs to be reset
     require(block.number >= throttleResetBlock);
+    //Need to figure out how much to stake to call this function.
+    require(stakedAmount[_stakerAddress] > 0);
 
-    // TODO: DO FUNCTION
-    // TODO: Permissions
+    mint();
+
     uint blockNumber = block.number;
-
-    // TODO: calculate reset dynamically
     throttleResetBlock = blockNumber += 10;
     throttleEpoch += 1;
 
-    mint();
-    if(currentBlockEpoch + EPOCH_HALVING >= block.number) {
+
+    if(currentEpochBlockStart + EPOCH_HALVING >= block.number) {
       updateMintReward()
     }
   }
 
   function updateMintReward() private {
-
-    require(epochCount <= 10);
+    require(globalEpochCount <= 10);
     mintReward = mintReward / 2;
-    epochCount += 1;
+    globalEpochCount += 1;
   }
 
   function getThrottleStartBlock() constant returns (uint) {
@@ -92,6 +97,9 @@ contract ThrottleableToken is StakableToken, MintableToken {
     return throttleEpoch;
   }
 
-
+  function increaseEpochCount(uint _epoch) {
+    // TODO: Permissions
+    totalReplaysPerEpoch[_epoch] = totalReplaysPerEpoch[_epoch] += 1;
+  }
 
 }
