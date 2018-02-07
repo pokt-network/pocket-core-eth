@@ -29,7 +29,7 @@ contract PocketNodeDelegate is PocketNodeState {
    */
   function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) {
     PocketNodeInterface relayerNode = PocketNodeInterface(_relayer);
-    mapping(bytes32 => NodeModels.Relay) relays = relayerNode.relays;
+    mapping(bytes32 => NodeModels.Relay) relays = relayerNode.relays.call();
 
     // Requirements to vote
     require(relays[_relayId].votesCasted < relays[_relayId].oracleAddresses.length);
