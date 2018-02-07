@@ -1,14 +1,11 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4;
 
-import "../token/PocketToken.sol";
+import "./PocketNodeState.sol";
+import "../interfaces/PocketNodeInterface.sol";
 
-contract PocketNodeDelegate {
-  // Attributes (mimics the attributes on the PocketNode)
-  address public ownerAddress;
-  bool public isRelayer;
-  bool public isOracle;
-  address public delegateContractAddress;
-  PocketRegistryInterface private registryInterface;
+contract PocketNodeDelegate is PocketNodeState {
+  // Events
+  event LogRelayConcluded(bytes32 _relayId, address _relayer);
   // Functions
   /**
    * Creates a new relay through the delegateContract
@@ -19,31 +16,69 @@ contract PocketNodeDelegate {
    */
   function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) {
     // Check the throttling
-    PocketToken token = PocketToken(_pocketTokenAddress);
-    require(token.throttle(_sender) == true);
+    require(PocketTokenInterface(_pocketTokenAddress).throttle(_sender) == true);
     // Insert the relay record
     insertRelay(registryInterface.getRelayOracles(), _txHash, _txTokenId, _sender);
   }
 
   /**
    * Submits a relay vote from an oracle
-   * @param {bytes32} relayId - The id of the relay to vote on
+   * @param {address} _relayer - The address of the relayer of the transaction
+   * @param {bytes32} _relayId - The id of the relay to vote on
    * @param {bool} _vote - Whether or not the transaction was succesfully relayed
    */
-  function submitRelayVote(address relayer, bytes32 relayId, bool _vote) {
-    require(relays[relayId].votesCasted < relays[relayId].oracles.length);
-    relays[relayId].oracleVotes[msg.sender] = _vote;
-    relays[relayId].votesCasted += 1;
-    if(relays[relayId].votesCasted == relays[relayId].oracles.length) {
-      relays[relayId].concluded = true;
-      relays[relayId].approved = true;
-      for (uint i = 0; i < relays[relayId].oracles.length; i++) {
-        if(relays[relayId].oracleVotes[relays[relayId].oracles[i]] == false) {
-          relays[relayId].approved = false;
+  function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) {
+    PocketNodeInterface relayerNode = PocketNodeInterface(_relayer);
+    mapping(bytes32 => Relay) relays = relayerNode.relays;
+
+    // Requirements to vote
+    require(relays[_relayId].votesCasted < relays[_relayId].oracleAddresses.length);
+    require(relays[_relayId].oracles[msg.sender] == true);
+
+    // Update votes
+    relays[_relayId].oracleVotes[msg.sender] = _vote;
+    relays[_relayId].votesCasted += 1;
+
+    // If this is the final vote to be casted, then mark the relay as concluded
+    if(relays[_relayId].votesCasted == relays[_relayId].oracleAddresses.length) {
+      relays[_relayId].concluded = true;
+
+      // Determines wheter or not the relay was approved by all oracles
+      relays[_relayId].approved = true;
+      for (uint i = 0; i < relays[_relayId].oracleAddresses.length; i++) {
+        if(relays[_relayId].oracleVotes[relays[_relayId].oracleAddresses[i]] == false) {
+          relays[_relayId].approved = false;
           return;
         }
       }
-      LogRelayConcluded(relayId, relays[relayId].relayer);
+
+      // Increases counts
+      if(relays[_relayId].concluded == true && relays[_relayId].approved == true) {
+        relayerNode.increaseACRelaysCount();
+        increaseACVRelaysCount();
+      }
+
+      // Increase the global count of relays in the current epoch
+      tokenInterface.increaseEpochCount(tokenInterface.globalEpochCount);
+
+      // Emit LogRelayConcluded event
+      LogRelayConcluded(_relayId, relays[_relayId]._relayer);
     }
+  }
+
+  /**
+   * @dev Increases the count of approved and concluded relays done by this node
+   */
+  // TO-DO: Add permissions to this
+  function increaseACRelaysCount() public {
+    aCRelaysCount += 1;
+  }
+
+  /**
+   * @dev Increases the count of approved and concluded relays verified by this node
+   */
+  // TO-DO: Add permissions to this
+  function increaseACVRelaysCount() public {
+    aCVRelaysCount += 1;
   }
 }
