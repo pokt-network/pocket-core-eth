@@ -29,8 +29,6 @@ contract PocketRegistry is NodeCrud {
   }
 
   function changeDelegate(address _newDelegate) returns (bool) onlyOwner {
-    require(owner == msg.sender);
-
     if (_newDelegate != delegateContract) {
       previousDelegates.push(delegateContract);
       var oldDelegate = delegateContract;
@@ -39,7 +37,6 @@ contract PocketRegistry is NodeCrud {
       return true;
     }
     return false;
-
   }
 
   // By registering a Node, you are agreeing to be a relayer in the Pocket Network.
