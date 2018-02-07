@@ -76,18 +76,9 @@ contract MintableToken is StandardToken, Ownable {
         balances[i] = balances[i].add(reward);
         Mint(i, reward);
         Transfer(0x0, i, reward);
+        return true;
       }
     }
-
-    // TODO: Mintable token with inflation
-    // Check throttle epoch
-    // Check relays sent during epoch
-    // Mint based on relays sent during epoch
-    totalSupply = totalSupply.add(_amount);
-    balances[_to] = balances[_to].add(_amount);
-    Mint(_to, _amount);
-    Transfer(0x0, _to, _amount);
-    return true;
   }
 
 
