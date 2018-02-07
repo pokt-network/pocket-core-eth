@@ -28,7 +28,7 @@ contract PocketRegistryDelegate {
     PocketNode newNode = new PocketNode(msg.sender, nodeDelegateAddress, tokenAddress, _isRelayer, _isOracle);
     userNode[msg.sender] = newNode;
 
-    registerNode(newNode.address, _supportedTokens, _url, _port, _isRelayer, _isOracle);
+    registerNode(newNode, _supportedTokens, _url, _port, _isRelayer, _isOracle);
 
   }
 
