@@ -25,7 +25,7 @@ contract PocketRegistryDelegate {
 
     tokenAddress.call(bytes4(sha3("burn(uint256,address)")),1,msg.sender);
 
-    PocketNode newNode = new PocketNode(msg.sender, nodeDelegateAddress, tokenAddress, _isRelayer, _isOracle);
+    PocketNode newNode = PocketNode(msg.sender, nodeDelegateAddress, tokenAddress, _isRelayer, _isOracle);
     userNode[msg.sender] = newNode;
 
     registerNode(newNode, _supportedTokens, _url, _port, _isRelayer, _isOracle);
@@ -34,20 +34,16 @@ contract PocketRegistryDelegate {
 
   // This is the function that actually register a Node.
   function registerNode(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
-    require(_nodeAddress);
     insertNode(_nodeAddress, _supportedTokens, _url, _port, _isRelayer, _isOracle);
   }
 
   // Updates the values of the given Node record.
   function updateNodeRecord(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
     // Only the owner can update his record.
-    updateNode(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle);
-  }
+    PocketNode newNode = PocketNode(_nodeAddress);
+    require(newNode.owner == msg.sender);
 
-  // Unregister a given Node record
-  function unregisterNodeRecord(address _nodeAddress) {
-    // Only the owner can unregister his record.
-    unregisterNode(address _nodeAddress);
+    updateNode(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle);
   }
 
   // Transfer ownership of a given record.
@@ -56,37 +52,8 @@ contract PocketRegistryDelegate {
     transfer(_nodeAddress, newOwner);
     }
 
-    // Tells whether a given Node key is registered.
-    function isRegisteredNode(address _nodeAddress) returns(bool) {
-      return isRegistered(_nodeAddress);
-    }
-
-    // Returns the Node record at the especified index.
-    function getNodeRecordAtIndex(uint _index) returns(address _nodeAddress) {
-      return getNodeAtIndex(_index);
-    }
-
-    // Returns the owner of the given record. The owner could also be get
-    // by using the function getRecord but in that case all record attributes
-    // are returned.
-    function getNodeOwner(address _nodeAddress) returns(address owner) {
-      return getOwner(_nodeAddress);
-    }
-
-    // Returns the registration time of the given record. The time could also
-    // be get by using the function getRecord but in that case all record attributes
-    // are returned.
-    function getNodeTime(address _nodeAddress) returns(uint time) {
-      return getTime(_nodeAddress);
-    }
-
     function kill() {
       suicide(owner);
-    }
-
-    // Get list of nodes that are currently relaying transactions
-    function getLiveNodes() constant returns (address[]) {
-      return getRegisteredNodes();
     }
 
     function setTokenAddress(address _tokenAddress) {

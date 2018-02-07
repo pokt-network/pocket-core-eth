@@ -56,48 +56,9 @@ contract NodeCrud {
     nodeRecords[_nodeAddress].isOracle = _isOracle;
   }
 
-  // Unregister a given Node record
-  function unregisterNode(address _nodeAddress) {
-    // TODO: Unregister method needs to be redesigned
-    /* uint keysIndex = nodeRecords[_nodeAddress].keysIndex;
-    delete nodeRecords[_nodeAddress];
-    nodeRecordsIndex[keysIndex] = nodeRecordsIndex[nodeRecordsIndex.length - 1];
-    nodeRecords[nodeRecordsIndex[keysIndex]].keysIndex = keysIndex;
-    nodeRecordsIndex.length--; */
-  }
-
   // Transfer ownership of a given record.
   function transfer(address _nodeAddress, address newOwner) {
     nodeRecords[_nodeAddress].owner = newOwner;
-  }
-
-  // Tells whether a given Node key is registered.
-  function isRegistered(address _nodeAddress) constant returns(bool _bool) {
-    return nodeRecords[key].time != 0;
-  }
-
-  // Returns the Node record at the especified index.
-  function getNodeAtIndex(uint _index) constant returns(address _nodeAddress) {
-    return nodeRecordsIndex[_index];
-  }
-
-  // Returns the owner of the given record. The owner could also be get
-  // by using the function getRecord but in that case all record attributes
-  // are returned.
-  function getOwner(address _nodeAddress) constant returns(address owner) {
-    return nodeRecords[_nodeAddress].owner;
-  }
-
-  // Returns the registration time of the given record. The time could also
-  // be get by using the function getRecord but in that case all record attributes
-  // are returned.
-  function getTime(address _nodeAddress) returns(uint time) {
-    return nodeRecords[_nodeAddress].time;
-  }
-
-  // Get list of nodes that are currently relaying transactions
-  function getRegisteredNodes() constant returns (address[] registeredNodes) {
-    return nodeRecords;
   }
 
 }
