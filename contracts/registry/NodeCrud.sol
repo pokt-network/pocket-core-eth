@@ -3,9 +3,6 @@ pragma solidity ^0.4.11;
 // This is the Node Create, Updated, Delete contract.
 contract NodeCrud {
 
-  // List of registered Nodes
-  address[] public registeredNodes;
-
   // This mapping keeps the records of this Registry.
   mapping(address => Node) nodeRecords;
 
@@ -38,78 +35,69 @@ contract NodeCrud {
     // TODO: Permissions
     // TODO: Dynamic burn amount
 
-    if (nodeRecords[_nodeAddress].time == 0) {
-      nodeRecords[_nodeAddress].time = now;
-      nodeRecords[_nodeAddress].owner = msg.sender;
-      nodeRecords[_nodeAddress].keysIndex = nodeRecordsIndex.length;
-      nodeRecordsIndex.length++;
-      nodeRecordsIndex[nodeRecordsIndex.length - 1] = nodeRecordsIndex;
-      nodeRecords[_nodeAddress].supportedTokens = _supportedTokens;
-      nodeRecords[_nodeAddress].url = _url;
-      nodeRecords[_nodeAddress].port = _port;
-      nodeRecords[_nodeAddress].isRelayer = _isRelayer;
-      nodeRecords[_nodeAddress].isOracle = _isOracle;
-      } else {
-        delete registeredNodes[registeredNodes.length - 1];
-      }
-    }
-
-    // Updates the values of the given Node record.
-    function updateNode(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle, uint _index) {
-      nodeRecords[_nodeAddress].supportedTokens = _supportedTokens;
-      nodeRecords[_nodeAddress].url = _url;
-      nodeRecords[_nodeAddress].port = _port;
-      nodeRecords[_nodeAddress].isRelayer = _isRelayer;
-      nodeRecords[_nodeAddress].isOracle = _isOracle;
-    }
-
-    // Unregister a given Node record
-    function unregisterNode(address _nodeAddress) {
-      if (nodeRecords[_nodeAddress].owner == msg.sender) {
-        uint keysIndex = nodeRecords[_nodeAddress].keysIndex;
-        delete nodeRecords[_nodeAddress];
-        nodeRecordsIndex[keysIndex] = nodeRecordsIndex[nodeRecordsIndex.length - 1];
-        nodeRecords[nodeRecordsIndex[keysIndex]].keysIndex = keysIndex;
-        nodeRecordsIndex.length--;
-      }
-    }
-
-    // Transfer ownership of a given record.
-    function transfer(address _nodeAddress, address newOwner) {
-        nodeRecords[_nodeAddress].owner = newOwner;
-    }
-
-    // Tells whether a given Node key is registered.
-    function isRegistered(address _nodeAddress) constant returns(bool) {
-      return nodeRecords[key].time != 0;
-    }
-
-    // Returns the Node record at the especified index.
-    function getNodeAtIndex(uint rindex) constant returns(address _nodeAddress) {
-      return nodeRecordsIndex[rindex];
-    }
-
-    // Returns the owner of the given record. The owner could also be get
-    // by using the function getRecord but in that case all record attributes
-    // are returned.
-    function getOwner(address _nodeAddress) constant returns(address owner) {
-      return nodeRecords[_nodeAddress].owner;
-    }
-
-    // Returns the registration time of the given record. The time could also
-    // be get by using the function getRecord but in that case all record attributes
-    // are returned.
-    function getTime(address _nodeAddress) returns(uint time) {
-      return nodeRecords[_nodeAddress].time;
-    }
-
-    // Get list of nodes that are currently relaying transactions
-    function getRegisteredNodes() constant returns (address[]) {
-      return registeredNodes;
-    }
-    // Get Current Node
-    function getCurrent() constant returns (address) {
-      return userNode[msg.sender];
-    }
+    require(nodeRecords[_nodeAddress].time == 0)
+    nodeRecords[_nodeAddress].time = now;
+    nodeRecords[_nodeAddress].owner = msg.sender;
+    nodeRecords[_nodeAddress].keysIndex = nodeRecordsIndex.push(_nodeAddress) - 1;
+    nodeRecords[_nodeAddress].supportedTokens = _supportedTokens;
+    nodeRecords[_nodeAddress].url = _url;
+    nodeRecords[_nodeAddress].port = _port;
+    nodeRecords[_nodeAddress].isRelayer = _isRelayer;
+    nodeRecords[_nodeAddress].isOracle = _isOracle;
 
   }
+
+  // Updates the values of the given Node record.
+  function updateNode(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
+    nodeRecords[_nodeAddress].supportedTokens = _supportedTokens;
+    nodeRecords[_nodeAddress].url = _url;
+    nodeRecords[_nodeAddress].port = _port;
+    nodeRecords[_nodeAddress].isRelayer = _isRelayer;
+    nodeRecords[_nodeAddress].isOracle = _isOracle;
+  }
+
+  // Unregister a given Node record
+  function unregisterNode(address _nodeAddress) {
+    // TODO: Unregister method needs to be redesigned
+    /* uint keysIndex = nodeRecords[_nodeAddress].keysIndex;
+    delete nodeRecords[_nodeAddress];
+    nodeRecordsIndex[keysIndex] = nodeRecordsIndex[nodeRecordsIndex.length - 1];
+    nodeRecords[nodeRecordsIndex[keysIndex]].keysIndex = keysIndex;
+    nodeRecordsIndex.length--; */
+  }
+
+  // Transfer ownership of a given record.
+  function transfer(address _nodeAddress, address newOwner) {
+    nodeRecords[_nodeAddress].owner = newOwner;
+  }
+
+  // Tells whether a given Node key is registered.
+  function isRegistered(address _nodeAddress) constant returns(bool _bool) {
+    return nodeRecords[key].time != 0;
+  }
+
+  // Returns the Node record at the especified index.
+  function getNodeAtIndex(uint _index) constant returns(address _nodeAddress) {
+    return nodeRecordsIndex[_index];
+  }
+
+  // Returns the owner of the given record. The owner could also be get
+  // by using the function getRecord but in that case all record attributes
+  // are returned.
+  function getOwner(address _nodeAddress) constant returns(address owner) {
+    return nodeRecords[_nodeAddress].owner;
+  }
+
+  // Returns the registration time of the given record. The time could also
+  // be get by using the function getRecord but in that case all record attributes
+  // are returned.
+  function getTime(address _nodeAddress) returns(uint time) {
+    return nodeRecords[_nodeAddress].time;
+  }
+
+  // Get list of nodes that are currently relaying transactions
+  function getRegisteredNodes() constant returns (address[] registeredNodes) {
+    return nodeRecords;
+  }
+
+}
