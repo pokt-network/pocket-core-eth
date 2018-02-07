@@ -1,17 +1,8 @@
 pragma solidity ^0.4.11;
 
 import 'installed_contracts/zeppelin/contracts/token/StandardToken.sol';
-import 'installed_contracts/zeppelin/contracts/ownership/Ownable.sol';
-
-contract RegistryInterface {
-  function getLiveNodes() constant returns (address[]);
-}
-
-contract NodeInterface {
-  mapping(bytes32 => Relay) public relays;
-  function getACRelays() public constant returns(bytes32[] acRelays);
-}
-
+import "../interfaces/PocketNodeInterface.sol";
+import "../interfaces/PocketRegistryInterface.sol";
 
 /**
  * @title Mintable token
@@ -47,7 +38,7 @@ contract MintableToken is StandardToken {
     for (uint i = 0; i < nodes.length; i++) {
       // Relayer mint
       if(nodes[i].isRelayer){
-        bytes32[] relays = NodeInterface(nodes[i]).getACRelays();
+        bytes32[] relays = PocketNodeInterface(nodes[i]).aCRelaysCount.call();
 
         if (relays.length > 0) {
           totalSupply = totalSupply.add(reward);
@@ -59,7 +50,7 @@ contract MintableToken is StandardToken {
 
       // Oracle mint
       if(nodes[i].isOracle){
-        bytes32[] oracleConfirmations = NodeInterface(nodes[i]).getACORelays();
+        bytes32[] oracleConfirmations = PocketNodeInterface(nodes[i]).aCVRelaysCount.call();
         if (oracleConfirmations.length > 0) {
           totalSupply = totalSupply.add(reward);
           balances[nodes[i]] = balances[i].add(reward);
