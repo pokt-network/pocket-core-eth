@@ -13,15 +13,6 @@ contract PocketRegistry is NodeCrud {
   address public delegateContract;
   address[] public previousDelegates;
 
-  // List of registered Nodes
-  address[] public registeredNodes;
-
-  // This mapping keeps the records of this Registry.
-  mapping(address => Node) nodeRecords;
-
-  // Keeps a list of all keys to iterate the Node records.
-  address[] public nodeRecordsIndex;
-
   modifier onlyOwner {
     if (msg.sender != owner) revert();
     _;
@@ -38,7 +29,7 @@ contract PocketRegistry is NodeCrud {
   }
 
   function changeDelegate(address _newDelegate) returns (bool) {
-    //assert(owner == msg.sender);
+    require(owner == msg.sender);
 
     if (_newDelegate != delegateContract) {
       previousDelegates.push(delegateContract);
@@ -58,23 +49,24 @@ contract PocketRegistry is NodeCrud {
     require(delegateContract.delegatecall(bytes4(sha3("registerNode()")), _nodeAddress, _supportedTokens, _url, _port, _index));
   }
 
+  // This is the function to create a new Node.
   function createNodeContract(string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
     require(delegateContract.delegatecall(bytes4(sha3("createNodeContract()")), _supportedTokens, _url, _port, _isRelayer, _isOracle));
   }
 
-  // Updates the values of the given Node record.
-  function updateNode(address _nodeAddress, string url) {
+  // Updates the values of the given Registered Node record.
+  function updateNodeRecord(address _nodeAddress, string url) {
     require(delegateContract.delegatecall(bytes4(sha3("updateNode()")), _nodeAddress, url));
   }
 
   // Unregister a given Node record
-  function unregisterNode(address _nodeAddress) {
-    require(delegateContract.delegatecall(bytes4(sha3("unregisterNode()")), _nodeAddress));
+  function unregisterNodeRecord(address _nodeAddress) {
+    require(delegateContract.delegatecall(bytes4(sha3("unregisterNodeRecord()")), _nodeAddress));
   }
 
   // Transfer ownership of a given record.
-  function transfer(address _nodeAddress, address newOwner) {
-    require(delegateContract.delegatecall(bytes4(sha3("transfer()")), _nodeAddress, newOwner));
+  function transferNode(address _nodeAddress, address newOwner) {
+    require(delegateContract.delegatecall(bytes4(sha3("transferNode()")), _nodeAddress, newOwner));
   }
 
   // Tells whether a given Node key is registered.
