@@ -19,10 +19,11 @@ contract StakableToken is StandardToken {
   * Core staking functions
   */
 
-  // Cannot throttle without first staking PKT
+  /// @dev Cannot use the network without first staking PKT.
+  /// @param _value of stake
   function stake(uint256 _value) returns (bool success) {
-    // TODO: Permissions
     require(_value > 0);
+
     // TODO: Timelock stake
 
     balances[msg.sender] -= _value;
@@ -31,8 +32,9 @@ contract StakableToken is StandardToken {
     return true;
   }
 
+  /// @dev Release stake to use Pocket Network. Will have a minimum time before removing.
+  /// @param _value of stake removed.
   function releaseStake(uint256 _value) returns (bool success) {
-    // TODO: Permissions
     // TODO: Timelock stake
     stakedAmount[msg.sender] -= _value;
     balances[msg.sender] += _value;
@@ -40,7 +42,9 @@ contract StakableToken is StandardToken {
     return true;
   }
 
-
+  /// @dev PKT holders and investors can stake on behalf of developers, nodes, and oracles they wish to support
+  /// @param _investee is address that msg.sender is investing on behalf of
+  /// @param _value of stake being invested
   function stakeOnBehalf(address _investee, uint256 _value) returns (bool success) {
 
     // Stake on behalf one person at a time
@@ -51,7 +55,10 @@ contract StakableToken is StandardToken {
     return true;
 
   }
-
+  /// @dev PKT holders and investors can remove stake on behalf of developers, nodes, and oracles they wish to
+  /// stop giving support to
+  /// @param _investee is address that msg.sender is removing investment on behalf of
+  /// @param _value of stake being invested
   function releaseStakeOnBehalf(address _investee, uint256 _value) returns (bool success) {
 
     balances[msg.sender] += _value;
