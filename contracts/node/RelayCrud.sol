@@ -1,26 +1,16 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4;
+
+import "./NodeStructs.sol";
 
 contract RelayCrud {
   // Attributes
   bytes32 currentRelayId;
   bytes32[] currentACRelays;
-  mapping(bytes32 => Relay) public relays;
+  // Relayed transactions
+  mapping(bytes32 => NodeStructs.Relay) public relays;
   bytes32[] private relayIndex;
-  // Structs
-  struct Relay {
-    address[] oracles;
-    bytes32 txHash;
-    bytes txTokenId;
-    address sender;
-    address relayer;
-    mapping (address => bool) oracleVotes;
-    bool approved;
-    bool concluded;
-    uint id;
-    uint votesCasted;
-  }
   // Events
-  event LogRelayInsert(address[] _oracles, bytes32 _txHash, bytes _txTokenId, address _sender, address _relayer, bytes32 relayID);
+  event LogRelayInsert(address[] _oracleAddresses, bytes32 _txHash, bytes _txTokenId, address _sender, address _relayer, bytes32 relayID);
   // Functions
   /**
    * Returns wheter or not the relay with this id exists
@@ -34,16 +24,19 @@ contract RelayCrud {
 
   /**
    * Inserts a relay into the relays mapping
-   * @param {address[]} _oracles - Oracle addressses selected for this relay
+   * @param {address[]} _oracleAddresses - Oracle addressses selected for this relay
    * @param {bytes32} _txHash - The serialized hash of the transaction to be relayed
    * @param {bytes} _txTokenId - The tokenID for the transaction being relayed: BTC, ETH, etc.
    * @param {address} _sender - The address of the sender of this transaction
    * @returns {uint} index - The index in which the relay record was inserted
    */
-  function insertRelay(address[] _oracles, bytes32 _txHash, bytes _txTokenId, address _sender) public returns(uint index) {
+  function insertRelay(address[] _oracleAddresses, bytes32 _txHash, bytes _txTokenId, address _sender) public returns(uint index) {
     currentRelayId = keccak256(_txHash, _txTokenId);
-    if(isRelay(currentRelayId)) throw;
-    relays[currentRelayId].oracles = _oracles;
+    if(isRelay(currentRelayId)) revert();
+    relays[currentRelayId].oracles = _oracleAddresses;
+    for(uint i = 0; i < _oracleAddresses.length; i++){
+      relays[currentRelayId].oracles[_oracleAddresses[i]] = true;
+    }
     relays[currentRelayId].txHash = _txHash;
     relays[currentRelayId].tokenId = _txTokenId;
     relays[currentRelayId].sender = _sender;
@@ -53,20 +46,6 @@ contract RelayCrud {
     relays[currentRelayId].index = relayIndex.push(currentRelayId) - 1;
     LogRelayInsert(_oracles, _txHash, _txTokenId, _sender, msg.sender, currentRelayId);
     return relayIndex.length - 1;
-  }
-
-  /**
-   * Returns a list of all the approved and concluded relays in the relays mapping
-   * @returns {Relay[]} acRelays - relay array to return
-   */
-  function getACRelays() public constant returns(bytes32[] acRelays) {
-    currentACRelays = new bytes32[]();
-    for (uint i = 0; i < relayIndex.length; i++) {
-      if(relays[relayIndex[i]].approved && relays[relayIndex[i]].concluded) {
-        currentACRelays.push(relayIndex[i]);
-      }
-    }
-    return currentACRelays;
   }
 
   /**
