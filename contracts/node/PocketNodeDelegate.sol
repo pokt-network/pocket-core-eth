@@ -29,7 +29,7 @@ contract PocketNodeDelegate is PocketNodeState {
    */
   function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) {
     PocketNodeInterface relayerNode = PocketNodeInterface(_relayer);
-    mapping(bytes32 => Relay) relays = relayerNode.relays;
+    mapping(bytes32 => NodeModels.Relay) relays = relayerNode.relays;
 
     // Requirements to vote
     require(relays[_relayId].votesCasted < relays[_relayId].oracleAddresses.length);
@@ -44,6 +44,7 @@ contract PocketNodeDelegate is PocketNodeState {
       relays[_relayId].concluded = true;
 
       // Determines wheter or not the relay was approved by all oracles
+      // TO-DO: Determine partial votes
       relays[_relayId].approved = true;
       for (uint i = 0; i < relays[_relayId].oracleAddresses.length; i++) {
         if(relays[_relayId].oracleVotes[relays[_relayId].oracleAddresses[i]] == false) {

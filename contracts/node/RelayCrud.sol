@@ -1,13 +1,13 @@
 pragma solidity ^0.4;
 
-import "./NodeStructs.sol";
+import "../models/NodeModels.sol";
 
 contract RelayCrud {
   // Attributes
   bytes32 currentRelayId;
   bytes32[] currentACRelays;
   // Relayed transactions
-  mapping(bytes32 => NodeStructs.Relay) public relays;
+  mapping(bytes32 => NodeModels.Relay) public relays;
   bytes32[] private relayIndex;
   // Events
   event LogRelayInsert(address[] _oracleAddresses, bytes32 _txHash, bytes _txTokenId, address _sender, address _relayer, bytes32 relayID);
