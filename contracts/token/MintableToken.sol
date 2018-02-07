@@ -1,9 +1,7 @@
 pragma solidity ^0.4.11;
 
-
 import 'installed_contracts/zeppelin/contracts/token/StandardToken.sol';
 import 'installed_contracts/zeppelin/contracts/ownership/Ownable.sol';
-
 
 contract RegistryInterface {
   function getLiveNodes() constant returns (address[]);
@@ -24,13 +22,11 @@ contract NodeInterface {
 
 contract MintableToken is StandardToken {
 
-  /** List of agents that are allowed to create new tokens */
 
   uint public nodeMintReward;
   uint public oracleMintReward;
   uint public totalMintReward = 2850;
   RegistryInterface public registryInterface;
-  mapping (uint => bool) hasEpochMinted;
   event Mint(address indexed to, uint256 amount);
 
   function MintableToken () {
@@ -55,7 +51,7 @@ contract MintableToken is StandardToken {
 
         if (relays.length > 0) {
           totalSupply = totalSupply.add(reward);
-          balances[i] = balances[i].add(reward);
+          balances[nodes[i]] = balances[i].add(reward);
           Mint(i, reward);
           Transfer(0x0, i, reward);
         }
@@ -66,16 +62,17 @@ contract MintableToken is StandardToken {
         bytes32[] oracleConfirmations = NodeInterface(nodes[i]).getACORelays();
         if (oracleConfirmations.length > 0) {
           totalSupply = totalSupply.add(reward);
-          balances[i] = balances[i].add(reward);
+          balances[nodes[i]] = balances[i].add(reward);
           Mint(i, oracleReward);
           Transfer(0x0, i, reward);
         }
       }
-      // Function caller reward
-      totalSupply = totalSupply.add(reward);
-      balances[i] = balances[i].add(reward);
-      Mint(msg.sender, epochResetterReward);
-      Transfer(0x0, msg.sender, epochResetterReward);
     }
+
+    // Function caller reward
+    totalSupply = totalSupply.add(reward);
+    balances[msg.sender] = balances[i].add(reward);
+    Mint(msg.sender, epochResetterReward);
+    Transfer(0x0, msg.sender, epochResetterReward);
   }
 }

@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 import "./StakableToken.sol";
-import "installed_contracts/zeppelin/contracts/token/MintableToken.sol";
+import "./MintableToken.sol";
 
 
 // To throttle, token must be able to stake
