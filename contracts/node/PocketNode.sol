@@ -1,7 +1,7 @@
 pragma solidity ^0.4;
 
 import "./RelayCrud.sol";
-import "./PocketNodeState.sol"
+import "./PocketNodeState.sol";
 
 contract PocketNode is RelayCrud, PocketNodeState {
   // Events
