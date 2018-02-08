@@ -84,4 +84,9 @@ contract PocketRegistry is NodeCrud, PocketRegistryState {
     require(delegateContract.delegatecall(bytes4(sha3("setNodeDelegateAddress(address)")), _nodeDelegateAddress));
   }
 
+  // This needs to return a fixed length array
+  function getRelayOracles() returns(address[5] oracles) {
+    return new address[5]();
+  }
+
 }

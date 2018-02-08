@@ -5,8 +5,6 @@ import "./RelayCrud.sol";
 import "../interfaces/PocketNodeInterface.sol";
 
 contract PocketNodeDelegate is RelayCrud, PocketNodeState {
-  // Events
-  event LogRelayConcluded(bytes32 _relayId, address _relayer);
   // Functions
   /**
    * Creates a new relay through the delegateContract
@@ -15,9 +13,9 @@ contract PocketNodeDelegate is RelayCrud, PocketNodeState {
    * @param {address} _sender - The sender of the transaction
    * @param {address} _pocketTokenAddress - The address for the PocketToken
    */
-  function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) {
+  function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) public {
     // Check the throttling
-    require(PocketTokenInterface(_pocketTokenAddress).throttle(_sender) == true);
+    require(PocketTokenInterface(_pocketTokenAddress).canRelayOrReset(_sender) == true);
     // Insert the relay record
     insertRelay(registryInterface.getRelayOracles(), _txHash, _txTokenId, _sender);
   }
@@ -28,43 +26,13 @@ contract PocketNodeDelegate is RelayCrud, PocketNodeState {
    * @param {bytes32} _relayId - The id of the relay to vote on
    * @param {bool} _vote - Whether or not the transaction was succesfully relayed
    */
-  function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) {
+  function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) public {
     PocketNodeInterface relayerNode = PocketNodeInterface(_relayer);
-    mapping(bytes32 => NodeModels.Relay) relays = relayerNode.relays.call();
-
-    // Requirements to vote
-    require(relays[_relayId].votesCasted < relays[_relayId].oracleAddresses.length);
-    require(relays[_relayId].oracles[msg.sender] == true);
-
-    // Update votes
-    relays[_relayId].oracleVotes[msg.sender] = _vote;
-    relays[_relayId].votesCasted += 1;
-
-    // If this is the final vote to be casted, then mark the relay as concluded
-    if(relays[_relayId].votesCasted == relays[_relayId].oracleAddresses.length) {
-      relays[_relayId].concluded = true;
-
-      // Determines wheter or not the relay was approved by all oracles
-      // TO-DO: Determine partial votes
-      relays[_relayId].approved = true;
-      for (uint i = 0; i < relays[_relayId].oracleAddresses.length; i++) {
-        if(relays[_relayId].oracleVotes[relays[_relayId].oracleAddresses[i]] == false) {
-          relays[_relayId].approved = false;
-          return;
-        }
-      }
-
-      // Increases counts
-      if(relays[_relayId].concluded == true && relays[_relayId].approved == true) {
-        relayerNode.increaseACRelaysCount();
-        increaseACVRelaysCount();
-      }
-
-      // Increase the global count of relays in the current epoch
-      tokenInterface.increaseEpochCount(tokenInterface.globalEpochCount);
-
-      // Emit LogRelayConcluded event
-      LogRelayConcluded(_relayId, relays[_relayId]._relayer);
+    relayerNode.updateRelayOracleVote(_relayId, _vote);
+    if(relayerNode.isRelayConcludedAndApproved(_relayId)) {
+      relayerNode.increaseACRelaysCount();
+      increaseACVRelaysCount();
+      tokenInterface.increaseCurrentEpochRelayCount();
     }
   }
 
