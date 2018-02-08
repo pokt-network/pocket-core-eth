@@ -1,7 +1,7 @@
 pragma solidity ^0.4;
 
 import "../token/PocketToken.sol";
-import "../node/PocketNode.sol";
+import "../interfaces/PocketNodeInterface.sol";
 import "./NodeCrud.sol";
 import "./PocketRegistryState.sol";
 
@@ -21,7 +21,7 @@ contract PocketRegistryDelegate is NodeCrud, PocketRegistryState {
 
     require(tokenAddress.call(bytes4(keccak256("burn(uint256,address)")),1,msg.sender));
 
-    PocketNode newNode = PocketNode(msg.sender, nodeDelegateAddress, tokenAddress, _isRelayer, _isOracle);
+    PocketNodeInterface newNode = new PocketNodeInterface(msg.sender, nodeDelegateAddress, tokenAddress, _isRelayer, _isOracle);
     userNode[msg.sender] = newNode;
 
     registerNode(newNode, _supportedTokens, _url, _path, _port, _isRelayer, _isOracle);
@@ -36,7 +36,7 @@ contract PocketRegistryDelegate is NodeCrud, PocketRegistryState {
   // Updates the values of the given Node record.
   function updateNodeRecord(address _nodeAddress, bytes8[] _supportedTokens, bytes32 _url, bytes32 _path, uint8 _port, bool _isRelayer, bool _isOracle) public {
     // Only the owner can update his record.
-    PocketNode newNode = PocketNode(_nodeAddress);
+    PocketNodeInterface newNode = PocketNodeInterface(_nodeAddress);
     require(newNode.owner() == msg.sender);
 
     updateNode(_nodeAddress, _supportedTokens, _url, _path, _port, _isRelayer, _isOracle);
@@ -44,20 +44,20 @@ contract PocketRegistryDelegate is NodeCrud, PocketRegistryState {
 
   // Transfer ownership of a given record.
   function transferNode(address _nodeAddress, address newOwner) public {
-    // Only the owner can transfer ownership of his record.
+  // Only the owner can transfer ownership of his record.
     transfer(_nodeAddress, newOwner);
-    }
-
-    function kill() {
-      selfdestruct(owner);
-    }
-
-    function setTokenAddress(address _tokenAddress) public {
-      tokenAddress = _tokenAddress;
-    }
-
-    function setNodeDelegateAddress(address _nodeDelegateAddress) public {
-      nodeDelegateAddress = _nodeDelegateAddress;
-    }
-
   }
+
+  function kill() public {
+    selfdestruct(owner);
+  }
+
+  function setTokenAddress(address _tokenAddress) public {
+    tokenAddress = _tokenAddress;
+  }
+
+  function setNodeDelegateAddress(address _nodeDelegateAddress) public {
+    nodeDelegateAddress = _nodeDelegateAddress;
+  }
+
+}
