@@ -8,10 +8,10 @@ contract PocketNodeDelegate is RelayCrud, PocketNodeState {
   // Functions
   /**
    * Creates a new relay through the delegateContract
-   * @param {bytes32} _txHash - The TX hash for the relayed transaction
-   * @param {bytes} _txTokenId - The token ID, e.g.: BTC, ETH, etc
-   * @param {address} _sender - The sender of the transaction
-   * @param {address} _pocketTokenAddress - The address for the PocketToken
+   * @param  _txHash - The TX hash for the relayed transaction
+   * @param  _txTokenId - The token ID, e.g.: BTC, ETH, etc
+   * @param  _sender - The sender of the transaction
+   * @param  _pocketTokenAddress - The address for the PocketToken
    */
   function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) public {
     // Check the throttling
@@ -22,9 +22,9 @@ contract PocketNodeDelegate is RelayCrud, PocketNodeState {
 
   /**
    * Submits a relay vote from an oracle
-   * @param {address} _relayer - The address of the relayer of the transaction
-   * @param {bytes32} _relayId - The id of the relay to vote on
-   * @param {bool} _vote - Whether or not the transaction was succesfully relayed
+   * @param  _relayer - The address of the relayer of the transaction
+   * @param  _relayId - The id of the relay to vote on
+   * @param  _vote - Whether or not the transaction was succesfully relayed
    */
   function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) public {
     PocketNodeInterface relayerNode = PocketNodeInterface(_relayer);

@@ -14,12 +14,11 @@ contract PocketNode is RelayCrud, PocketNodeState {
   // Functions
   /**
    * Represents a PocketNode.
-   * @constructor
-   * @param {address} _owner - The owner of this PocketNode
-   * @param {address} _delegateContract - The PocketNodeDelegate instance address
-   * @param {address} _token - The PocketToken instance address
-   * @param {bool} _isRelayer - Determines wheter or not the new node is a Relayer
-   * @param {bool} _isOracle - Determines wheter or not the new node is an Oracle
+   * @param _owner - The owner of this PocketNode
+   * @param _delegateContract - The PocketNodeDelegate instance address
+   * @param _token - The PocketToken instance address
+   * @param _isRelayer - Determines wheter or not the new node is a Relayer
+   * @param _isOracle - Determines wheter or not the new node is an Oracle
    */
   function PocketNode(address _owner, address _delegateContract, address _token, bool _isRelayer, bool _isOracle) public {
     owner = _owner;
@@ -36,10 +35,10 @@ contract PocketNode is RelayCrud, PocketNodeState {
 
   /**
    * Creates a new relay through the delegateContract
-   * @param {bytes32} _txHash - The TX hash for the relayed transaction
-   * @param {bytes} _txTokenId - The token ID, e.g.: BTC, ETH, etc
-   * @param {address} _sender - The sender of the transaction
-   * @param {address} _pocketTokenAddress - The address for the PocketToken
+   * @param _txHash - The TX hash for the relayed transaction
+   * @param _txTokenId - The token ID, e.g.: BTC, ETH, etc
+   * @param _sender - The sender of the transaction
+   * @param _pocketTokenAddress - The address for the PocketToken
    */
   function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) public {
     require(delegateContract.delegatecall(createRelaySignature, _txHash, _txTokenId, _sender, _pocketTokenAddress));
@@ -47,8 +46,8 @@ contract PocketNode is RelayCrud, PocketNodeState {
 
   /**
    * Submits a relay vote from an oracle
-   * @param {bytes32} relayId - The id of the relay to vote on
-   * @param {bool} _vote - Whether or not the transaction was succesfully relayed
+   * @param _relayId - The id of the relay to vote on
+   * @param _vote - Whether or not the transaction was succesfully relayed
    */
   function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) public {
     require(delegateContract.delegatecall(submitRelayVoteSignature, _relayer, _relayId, _vote));
@@ -72,8 +71,8 @@ contract PocketNode is RelayCrud, PocketNodeState {
 
   /**
    * Only lets the owner withdraw the balance of the contract
-   * @param {address} _to - The destination address of the funds
-   * @param {uint} _value - The amount to withdraw
+   * @param  _to - The destination address of the funds
+   * @param  _value - The amount to withdraw
    */
   function withdraw(address _to, uint _value) public onlyOwner {
     require(tokenInterface.transfer(_to, _value));
