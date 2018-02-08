@@ -25,7 +25,7 @@ contract PocketToken is StakableToken {
   // Events
   event Mint(address indexed to, uint amount);
   // Functions
-  function PocketToken() {
+  function PocketToken() public {
     // constructor
     totalSupply = 100000000;
     balances[msg.sender] = totalSupply;
@@ -82,7 +82,7 @@ contract PocketToken is StakableToken {
   /// @dev Acts as main function to check whether developer account using relay services has reached their maximum amount of relays in allotted amount of blocks
   /// @param _stakerAddress that is being checked if needs to be throttled
   /// @TODO separate check from state change
-  function canRelayOrReset(address _senderAddress) returns (bool success) {
+  function canRelayOrReset(address _senderAddress) public returns (bool success) {
     bool result = false;
     if (block.number > currentEpochBlockEnd) {
       epochTransactionCount[_senderAddress] = 0;
@@ -108,7 +108,7 @@ contract PocketToken is StakableToken {
   /// When calculateNodeRewards() gets calculated, first successful caller of this method mints 10%
   /// of token reward. Acts as catalyst for entire network.
   /// TODO figure out a better way to implement this
-  function mineCurrentEpoch() {
+  function mineCurrentEpoch() public {
     require(block.number > currentEpochBlockEnd);
     require(stakedAmount[msg.sender] > 0);
     calculateNodeRewards();
@@ -121,7 +121,7 @@ contract PocketToken is StakableToken {
   }
 
   // TODO: Permissions
-  function increaseCurrentEpochRelayCount() {
+  function increaseCurrentEpochRelayCount() public {
     totalRelaysPerEpoch[currentEpoch] = totalRelaysPerEpoch[currentEpoch] += 1;
   }
 }

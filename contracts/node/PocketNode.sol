@@ -21,7 +21,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    * @param {bool} _isRelayer - Determines wheter or not the new node is a Relayer
    * @param {bool} _isOracle - Determines wheter or not the new node is an Oracle
    */
-  function PocketNode(address _owner, address _delegateContract, address _token, bool _isRelayer, bool _isOracle) {
+  function PocketNode(address _owner, address _delegateContract, address _token, bool _isRelayer, bool _isOracle) public {
     owner = _owner;
     delegateContract = _delegateContract;
     tokenInterface = PocketTokenInterface(_token);
@@ -41,7 +41,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    * @param {address} _sender - The sender of the transaction
    * @param {address} _pocketTokenAddress - The address for the PocketToken
    */
-  function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) {
+  function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) public {
     require(delegateContract.delegatecall(createRelaySignature, _txHash, _txTokenId, _sender, _pocketTokenAddress));
   }
 
@@ -50,7 +50,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    * @param {bytes32} relayId - The id of the relay to vote on
    * @param {bool} _vote - Whether or not the transaction was succesfully relayed
    */
-  function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) {
+  function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) public {
     require(delegateContract.delegatecall(submitRelayVoteSignature, _relayer, _relayId, _vote));
   }
 
@@ -75,14 +75,14 @@ contract PocketNode is RelayCrud, PocketNodeState {
    * @param {address} _to - The destination address of the funds
    * @param {uint} _value - The amount to withdraw
    */
-  function withdraw(address _to, uint _value) onlyOwner {
+  function withdraw(address _to, uint _value) public onlyOwner {
     require(tokenInterface.transfer(_to, _value));
   }
 
   /**
    * Only lets the owner kill this instance
    */
-  function kill() onlyOwner {
+  function kill() public onlyOwner {
     require(tokenInterface.transfer(owner, tokenInterface.balanceOf(this)));
     selfdestruct(owner);
   }

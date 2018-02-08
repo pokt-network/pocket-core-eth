@@ -13,7 +13,7 @@ contract PocketNodeDelegate is RelayCrud, PocketNodeState {
    * @param {address} _sender - The sender of the transaction
    * @param {address} _pocketTokenAddress - The address for the PocketToken
    */
-  function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) {
+  function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) public {
     // Check the throttling
     require(PocketTokenInterface(_pocketTokenAddress).canRelayOrReset(_sender) == true);
     // Insert the relay record
@@ -26,7 +26,7 @@ contract PocketNodeDelegate is RelayCrud, PocketNodeState {
    * @param {bytes32} _relayId - The id of the relay to vote on
    * @param {bool} _vote - Whether or not the transaction was succesfully relayed
    */
-  function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) {
+  function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) public {
     PocketNodeInterface relayerNode = PocketNodeInterface(_relayer);
     relayerNode.updateRelayOracleVote(_relayId, _vote);
     if(relayerNode.isRelayConcludedAndApproved(_relayId)) {
