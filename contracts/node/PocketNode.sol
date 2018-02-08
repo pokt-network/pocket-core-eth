@@ -42,7 +42,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    * @param {address} _pocketTokenAddress - The address for the PocketToken
    */
   function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) {
-    delegateContract.delegatecall(createRelaySignature, _txHash, _txTokenId, _sender, _pocketTokenAddress);
+    require(delegateContract.delegatecall(createRelaySignature, _txHash, _txTokenId, _sender, _pocketTokenAddress));
   }
 
   /**
@@ -51,7 +51,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    * @param {bool} _vote - Whether or not the transaction was succesfully relayed
    */
   function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) {
-    delegateContract.delegatecall(submitRelayVoteSignature, _relayer, _relayId, _vote);
+    require(delegateContract.delegatecall(submitRelayVoteSignature, _relayer, _relayId, _vote));
   }
 
   /**
@@ -59,7 +59,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    */
   // TO-DO: Add permissions to this
   function increaseACRelaysCount() public {
-    delegateContract.delegatecall(increaseACRelaysCountSignature);
+    require(delegateContract.delegatecall(increaseACRelaysCountSignature));
   }
 
   /**
@@ -67,7 +67,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    */
   // TO-DO: Add permissions to this
   function increaseACVRelaysCount() public {
-    delegateContract.delegatecall(increaseACVRelaysCountSignature);
+    require(delegateContract.delegatecall(increaseACVRelaysCountSignature));
   }
 
   /**
@@ -83,6 +83,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    * Only lets the owner kill this instance
    */
   function kill() onlyOwner {
-    suicide(owner);
+    require(tokenInterface.transfer(owner, tokenInterface.balanceOf(this)));
+    selfdestruct(owner);
   }
 }

@@ -5,8 +5,6 @@ import "./RelayCrud.sol";
 import "../interfaces/PocketNodeInterface.sol";
 
 contract PocketNodeDelegate is RelayCrud, PocketNodeState {
-  // Events
-  event LogRelayConcluded(bytes32 _relayId, address _relayer);
   // Functions
   /**
    * Creates a new relay through the delegateContract
@@ -17,7 +15,7 @@ contract PocketNodeDelegate is RelayCrud, PocketNodeState {
    */
   function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) {
     // Check the throttling
-    require(PocketTokenInterface(_pocketTokenAddress).throttle(_sender) == true);
+    require(PocketTokenInterface(_pocketTokenAddress).canRelayOrReset(_sender) == true);
     // Insert the relay record
     insertRelay(registryInterface.getRelayOracles(), _txHash, _txTokenId, _sender);
   }
@@ -30,7 +28,7 @@ contract PocketNodeDelegate is RelayCrud, PocketNodeState {
    */
   function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) {
     PocketNodeInterface relayerNode = PocketNodeInterface(_relayer);
-    mapping(bytes32 => NodeModels.Relay) relays = relayerNode.relays.call();
+    NodeModels.Relay storage relay = relayerNode.getRelay(_relayId);
 
     // Requirements to vote
     require(relays[_relayId].votesCasted < relays[_relayId].oracleAddresses.length);

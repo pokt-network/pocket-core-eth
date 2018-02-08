@@ -8,4 +8,5 @@ contract PocketTokenInterface {
   function transfer(address _recipient, uint256 _value) returns (bool success) {}
   function canRelayOrReset(address _senderAddress) returns (bool success) {}
   function increaseCurrentEpochRelayCount() {}
+  function balanceOf(address who) public constant returns (uint256) {}
 }
