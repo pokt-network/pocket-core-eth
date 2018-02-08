@@ -14,5 +14,6 @@ library NodeModels {
     bool concluded;
     uint id;
     uint votesCasted;
+    uint index;
   }
 }

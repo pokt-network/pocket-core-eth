@@ -1,9 +1,10 @@
 pragma solidity ^0.4;
 
 import "./PocketNodeState.sol";
+import "./RelayCrud.sol";
 import "../interfaces/PocketNodeInterface.sol";
 
-contract PocketNodeDelegate is PocketNodeState {
+contract PocketNodeDelegate is RelayCrud, PocketNodeState {
   // Events
   event LogRelayConcluded(bytes32 _relayId, address _relayer);
   // Functions

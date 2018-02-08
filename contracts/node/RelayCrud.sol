@@ -33,18 +33,18 @@ contract RelayCrud {
   function insertRelay(address[] _oracleAddresses, bytes32 _txHash, bytes _txTokenId, address _sender) public returns(uint index) {
     currentRelayId = keccak256(_txHash, _txTokenId);
     if(isRelay(currentRelayId)) revert();
-    relays[currentRelayId].oracles = _oracleAddresses;
+    relays[currentRelayId].oracleAddresses = _oracleAddresses;
     for(uint i = 0; i < _oracleAddresses.length; i++){
       relays[currentRelayId].oracles[_oracleAddresses[i]] = true;
     }
     relays[currentRelayId].txHash = _txHash;
-    relays[currentRelayId].tokenId = _txTokenId;
+    relays[currentRelayId].txTokenId = _txTokenId;
     relays[currentRelayId].sender = _sender;
     relays[currentRelayId].relayer = msg.sender;
     relays[currentRelayId].approved = false;
     relays[currentRelayId].concluded = false;
     relays[currentRelayId].index = relayIndex.push(currentRelayId) - 1;
-    LogRelayInsert(_oracles, _txHash, _txTokenId, _sender, msg.sender, currentRelayId);
+    LogRelayInsert(_oracleAddresses, _txHash, _txTokenId, _sender, msg.sender, currentRelayId);
     return relayIndex.length - 1;
   }
 

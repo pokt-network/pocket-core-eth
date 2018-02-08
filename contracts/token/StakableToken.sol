@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4;
 
 import "installed_contracts/zeppelin/contracts/token/StandardToken.sol";
 
@@ -11,9 +11,6 @@ contract StakableToken is StandardToken {
   // Interface for checking whether stakers are registeredNodes or registeredOracles
   event Staked(address indexed _from, uint256 _value);
   event StakeReleased(address indexed _from, uint256 _value);
-
-  function StakableToken() {
-  }
 
   /*
   * Core staking functions
@@ -51,7 +48,7 @@ contract StakableToken is StandardToken {
     balances[msg.sender] -= _value;
     stakedAmount[_investee] += _value;
     investorStakedAmount[msg.sender][_investee] += _value;
-    Staked(msg.sender, _value)
+    Staked(msg.sender, _value);
     return true;
 
   }
