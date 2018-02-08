@@ -28,41 +28,11 @@ contract PocketNodeDelegate is RelayCrud, PocketNodeState {
    */
   function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) {
     PocketNodeInterface relayerNode = PocketNodeInterface(_relayer);
-    NodeModels.Relay storage relay = relayerNode.getRelay(_relayId);
-
-    // Requirements to vote
-    require(relays[_relayId].votesCasted < relays[_relayId].oracleAddresses.length);
-    require(relays[_relayId].oracles[msg.sender] == true);
-
-    // Update votes
-    relays[_relayId].oracleVotes[msg.sender] = _vote;
-    relays[_relayId].votesCasted += 1;
-
-    // If this is the final vote to be casted, then mark the relay as concluded
-    if(relays[_relayId].votesCasted == relays[_relayId].oracleAddresses.length) {
-      relays[_relayId].concluded = true;
-
-      // Determines wheter or not the relay was approved by all oracles
-      // TO-DO: Determine partial votes
-      relays[_relayId].approved = true;
-      for (uint i = 0; i < relays[_relayId].oracleAddresses.length; i++) {
-        if(relays[_relayId].oracleVotes[relays[_relayId].oracleAddresses[i]] == false) {
-          relays[_relayId].approved = false;
-          return;
-        }
-      }
-
-      // Increases counts
-      if(relays[_relayId].concluded == true && relays[_relayId].approved == true) {
-        relayerNode.increaseACRelaysCount();
-        increaseACVRelaysCount();
-      }
-
-      // Increase the global count of relays in the current epoch
-      tokenInterface.increaseEpochCount(tokenInterface.globalEpochCount);
-
-      // Emit LogRelayConcluded event
-      LogRelayConcluded(_relayId, relays[_relayId]._relayer);
+    relayerNode.updateRelayOracleVote(_relayId, _vote);
+    if(relayerNode.isRelayConcludedAndApproved(_relayId)) {
+      relayerNode.increaseACRelaysCount();
+      increaseACVRelaysCount();
+      tokenInterface.increaseCurrentEpochRelayCount();
     }
   }
 

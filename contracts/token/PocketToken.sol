@@ -4,6 +4,7 @@ import "installed_contracts/zeppelin/contracts/token/BurnableToken.sol";
 import "./StakableToken.sol";
 import "../interfaces/PocketNodeInterface.sol";
 import "../interfaces/PocketRegistryInterface.sol";
+import "installed_contracts/zeppelin/contracts/math/SafeMath.sol";
 
 contract PocketToken is StakableToken {
 
@@ -52,24 +53,25 @@ contract PocketToken is StakableToken {
   }
 
   // TO-DO: Figure out scalability and permissions
-  function calculateNodeRewards() {
+  function calculateNodeRewards() private {
     require(totalRelaysPerEpoch[currentEpoch] > 0);
-    uint256 nodeMintReward = totalMintReward * 0.8;
-    uint256 oracleMintReward = totalMintReward * 0.1;
-    uint256 epochMinerReward = totalMintReward * 0.1;
-    address[] storage nodes = registryInterface.getLiveNodes();
+    uint256 nodeMintReward = SafeMath.mul(totalMintReward, SafeMath.div(80, 100));
+    uint256 oracleMintReward = SafeMath.mul(totalMintReward, SafeMath.div(10, 100));
+    uint256 epochMinerReward = SafeMath.mul(totalMintReward, SafeMath.div(10, 100));
+    uint liveNodesCount = registryInterface.getLiveNodesCount();
     uint256 relayReward = totalRelaysPerEpoch[currentEpoch] / nodeMintReward;
     uint256 relayVerificationReward = totalRelaysPerEpoch[currentEpoch] / oracleMintReward;
 
-    for (uint i = 0; i < nodes.length; i++) {
+    for (uint i = 0; i < liveNodesCount; i++) {
+      PocketNodeInterface pocketNodeInterface = PocketNodeInterface(registryInterface.getNodeRecordAtIndex(i));
       // Relayer mint
-      if(nodes[i].isRelayer){
-        rewardNode(nodes[i], relayReward, PocketNodeInterface(nodes[i]).aCRelaysCount.call());
+      if(pocketNodeInterface.isRelayer() == true){
+        rewardNode(pocketNodeInterface, relayReward, pocketNodeInterface.aCRelaysCount());
       }
 
       // Oracle mint
-      if(nodes[i].isOracle){
-        rewardNode(nodes[i], relayVerificationReward, PocketNodeInterface(nodes[i]).aCVRelaysCount.call());
+      if(pocketNodeInterface.isOracle() == true){
+        rewardNode(pocketNodeInterface, relayVerificationReward, pocketNodeInterface.aCVRelaysCount());
       }
     }
 
