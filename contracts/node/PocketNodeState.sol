@@ -11,8 +11,8 @@ contract PocketNodeState {
   bool public isRelayer;
   bool public isOracle;
   address public delegateContract;
-  PocketRegistryInterface private registryInterface;
-  PocketTokenInterface private tokenInterface;
+  PocketRegistryInterface registryInterface;
+  PocketTokenInterface tokenInterface;
   // Approved and Concluded relays count
   uint public aCRelaysCount;
   // Approved and Concluded verified relays count

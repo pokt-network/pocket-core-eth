@@ -4,6 +4,11 @@ import "./RelayCrud.sol";
 import "./PocketNodeState.sol";
 
 contract PocketNode is RelayCrud, PocketNodeState {
+  // Attributes
+  bytes4 createRelaySignature;
+  bytes4 submitRelayVoteSignature;
+  bytes4 increaseACRelaysCountSignature;
+  bytes4 increaseACVRelaysCountSignature;
   // Events
   event LogRelayConcluded(bytes32 _relayId, address _relayer);
   // Functions
@@ -23,6 +28,10 @@ contract PocketNode is RelayCrud, PocketNodeState {
     isRelayer = _isRelayer;
     isOracle = _isOracle;
     registryInterface = PocketRegistryInterface(msg.sender);
+    createRelaySignature = bytes4(keccak256("createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress)"));
+    submitRelayVoteSignature = bytes4(keccak256("submitRelayVote(address _relayer, bytes32 _relayId, bool _vote)"));
+    increaseACRelaysCountSignature = bytes4(keccak256('increaseACRelaysCount()'));
+    increaseACVRelaysCountSignature = bytes4(keccak256('increaseACVRelaysCount()'));
   }
 
   /**
@@ -33,7 +42,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    * @param {address} _pocketTokenAddress - The address for the PocketToken
    */
   function createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress) {
-    delegateContract.delegatecall(bytes4(sha3("createRelay(bytes32 _txHash, bytes _txTokenId, address _sender, address _pocketTokenAddress)")), _txHash, _txTokenId, _sender, _pocketTokenAddress);
+    delegateContract.delegatecall(createRelaySignature, _txHash, _txTokenId, _sender, _pocketTokenAddress);
   }
 
   /**
@@ -42,7 +51,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    * @param {bool} _vote - Whether or not the transaction was succesfully relayed
    */
   function submitRelayVote(address _relayer, bytes32 _relayId, bool _vote) {
-    delegateContract.delegatecall(bytes4(sha3("submitRelayVote(address _relayer, bytes32 _relayId, bool _vote)")), _relayer, _relayId, _vote);
+    delegateContract.delegatecall(submitRelayVoteSignature, _relayer, _relayId, _vote);
   }
 
   /**
@@ -50,7 +59,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    */
   // TO-DO: Add permissions to this
   function increaseACRelaysCount() public {
-    delegateContract.delegateCall(bytes4(sha3('increaseACRelaysCount()')));
+    delegateContract.delegatecall(increaseACRelaysCountSignature);
   }
 
   /**
@@ -58,7 +67,7 @@ contract PocketNode is RelayCrud, PocketNodeState {
    */
   // TO-DO: Add permissions to this
   function increaseACVRelaysCount() public {
-    delegateContract.delegateCall(bytes4(sha3('increaseACVRelaysCount()')));
+    delegateContract.delegatecall(increaseACVRelaysCountSignature);
   }
 
   /**
