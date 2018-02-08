@@ -1,6 +1,7 @@
 pragma solidity ^0.4;
 
 import "../models/NodeModels.sol";
+import "../interfaces/PocketTokenInterface.sol";
 
 contract RelayCrud {
   // Attributes
@@ -60,27 +61,52 @@ contract RelayCrud {
 
   // Getters for relay properties
   // TO-DO: Document all these
-  function getRelayVotesCasted(bytes32 _relayId) returns(uint votesCasted){
+  function getRelayVotesCasted(bytes32 _relayId) public returns(uint votesCasted){
     return relays[_relayId].votesCasted;
   }
 
-  function getRelayOracleAddresses(bytes32 _relayId) returns(address[5] oracleAddresses){
+  function getRelayOracleAddresses(bytes32 _relayId) public returns(address[5] oracleAddresses){
     return relays[_relayId].oracleAddresses;
   }
 
-  function isRelayOracle(bytes32 _relayId, address _potentialOracle) returns(bool isOracle) {
+  function isRelayOracle(bytes32 _relayId, address _potentialOracle) public returns(bool isOracle) {
     return relays[_relayId].oracles[_potentialOracle];
   }
 
-  function updateRelayOracleVote(bytes32 _relayId, bool _vote) {
-    require(relays[_relayId].concluded != false);
+  function updateRelayOracleVote(bytes32 _relayId, bool _vote) public {
+    require(relays[_relayId].concluded == false);
     require(isRelayOracle(_relayId, msg.sender));
+    require(oracleVoted(_relayId, msg.sender) == false);
     relays[_relayId].oracleVotes[msg.sender] = _vote;
     relays[_relayId].oracleVoted[msg.sender] = true;
+    relays[_relayId].votesCasted += 1;
   }
 
-  function oracleVoted(bytes32 _relayId, address _oracle) returns(bool voted) {
+  function oracleVoted(bytes32 _relayId, address _oracle) public returns(bool voted) {
     return relays[_relayId].oracleVoted[_oracle];
+  }
+
+  function concludeRelay(bytes32 _relayId) public{
+    require(relays[_relayId].concluded == false);
+    require(relays[_relayId].votesCasted == relays[_relayId].oracleAddresses.length);
+    relays[_relayId].concluded = true;
+
+    // Determines wheter or not the relay was approved by all oracles
+    // TO-DO: Determine partial votes
+    bool result = true;
+    for (uint i = 0; i < relays[_relayId].oracleAddresses.length; i++) {
+      if(relays[_relayId].oracleVotes[relays[_relayId].oracleAddresses[i]] == false) {
+        result = false;
+        return;
+      }
+    }
+    relays[_relayId].approved = result;
+    // Emit LogRelayConcluded event
+    LogRelayConcluded(_relayId, relays[_relayId].relayer);
+  }
+
+  function isRelayConcludedAndApproved(bytes32 _relayId) public constant returns(bool isConcludedAndApproved) {
+    return (relays[_relayId].concluded == true && relays[_relayId].approved == true);
   }
 
 }

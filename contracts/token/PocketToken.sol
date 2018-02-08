@@ -4,6 +4,7 @@ import "installed_contracts/zeppelin/contracts/token/BurnableToken.sol";
 import "./StakableToken.sol";
 import "../interfaces/PocketNodeInterface.sol";
 import "../interfaces/PocketRegistryInterface.sol";
+import "installed_contracts/zeppelin/contracts/math/SafeMath.sol";
 
 contract PocketToken is StakableToken {
 
@@ -24,7 +25,7 @@ contract PocketToken is StakableToken {
   // Events
   event Mint(address indexed to, uint amount);
   // Functions
-  function PocketToken() {
+  function PocketToken() public {
     // constructor
     totalSupply = 100000000;
     balances[msg.sender] = totalSupply;
@@ -52,24 +53,25 @@ contract PocketToken is StakableToken {
   }
 
   // TO-DO: Figure out scalability and permissions
-  function calculateNodeRewards() {
+  function calculateNodeRewards() private {
     require(totalRelaysPerEpoch[currentEpoch] > 0);
-    uint256 nodeMintReward = totalMintReward * 0.8;
-    uint256 oracleMintReward = totalMintReward * 0.1;
-    uint256 epochMinerReward = totalMintReward * 0.1;
-    address[] storage nodes = registryInterface.getLiveNodes();
+    uint256 nodeMintReward = SafeMath.mul(totalMintReward, SafeMath.div(80, 100));
+    uint256 oracleMintReward = SafeMath.mul(totalMintReward, SafeMath.div(10, 100));
+    uint256 epochMinerReward = SafeMath.mul(totalMintReward, SafeMath.div(10, 100));
+    uint liveNodesCount = registryInterface.getLiveNodesCount();
     uint256 relayReward = totalRelaysPerEpoch[currentEpoch] / nodeMintReward;
     uint256 relayVerificationReward = totalRelaysPerEpoch[currentEpoch] / oracleMintReward;
 
-    for (uint i = 0; i < nodes.length; i++) {
+    for (uint i = 0; i < liveNodesCount; i++) {
+      PocketNodeInterface pocketNodeInterface = PocketNodeInterface(registryInterface.getNodeRecordAtIndex(i));
       // Relayer mint
-      if(nodes[i].isRelayer){
-        rewardNode(nodes[i], relayReward, PocketNodeInterface(nodes[i]).aCRelaysCount.call());
+      if(pocketNodeInterface.isRelayer() == true){
+        rewardNode(pocketNodeInterface, relayReward, pocketNodeInterface.aCRelaysCount());
       }
 
       // Oracle mint
-      if(nodes[i].isOracle){
-        rewardNode(nodes[i], relayVerificationReward, PocketNodeInterface(nodes[i]).aCVRelaysCount.call());
+      if(pocketNodeInterface.isOracle() == true){
+        rewardNode(pocketNodeInterface, relayVerificationReward, pocketNodeInterface.aCVRelaysCount());
       }
     }
 
@@ -80,7 +82,7 @@ contract PocketToken is StakableToken {
   /// @dev Acts as main function to check whether developer account using relay services has reached their maximum amount of relays in allotted amount of blocks
   /// @param _stakerAddress that is being checked if needs to be throttled
   /// @TODO separate check from state change
-  function canRelayOrReset(address _senderAddress) returns (bool success) {
+  function canRelayOrReset(address _senderAddress) public returns (bool success) {
     bool result = false;
     if (block.number > currentEpochBlockEnd) {
       epochTransactionCount[_senderAddress] = 0;
@@ -106,7 +108,7 @@ contract PocketToken is StakableToken {
   /// When calculateNodeRewards() gets calculated, first successful caller of this method mints 10%
   /// of token reward. Acts as catalyst for entire network.
   /// TODO figure out a better way to implement this
-  function mineCurrentEpoch() {
+  function mineCurrentEpoch() public {
     require(block.number > currentEpochBlockEnd);
     require(stakedAmount[msg.sender] > 0);
     calculateNodeRewards();
@@ -119,7 +121,7 @@ contract PocketToken is StakableToken {
   }
 
   // TODO: Permissions
-  function increaseCurrentEpochRelayCount() {
+  function increaseCurrentEpochRelayCount() public {
     totalRelaysPerEpoch[currentEpoch] = totalRelaysPerEpoch[currentEpoch] += 1;
   }
 }
