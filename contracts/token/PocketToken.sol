@@ -80,8 +80,8 @@ contract PocketToken is StakableToken {
   }
 
   /// @dev Acts as main function to check whether developer account using relay services has reached their maximum amount of relays in allotted amount of blocks
-  /// @param _stakerAddress that is being checked if needs to be throttled
-  /// @TODO separate check from state change
+  /// @param _senderAddress that is being checked if needs to be throttled
+  /// TODO separate check from state change
   function canRelayOrReset(address _senderAddress) public returns (bool success) {
     bool result = false;
     if (block.number > currentEpochBlockEnd) {

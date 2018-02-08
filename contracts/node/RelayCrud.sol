@@ -16,8 +16,8 @@ contract RelayCrud {
   // Functions
   /**
    * Returns wheter or not the relay with this id exists
-   * @param {bytes32} _relayId - The id we wanna confirm
-   * @return {bool} isIndeed - Whether or not the relay is there
+   * @param  _relayId - The id we wanna confirm
+   * @return  isIndeed - Whether or not the relay is there
    */
   function isRelay(bytes32 _relayId) public constant returns(bool isIndeed) {
     if(relayIndex.length == 0) return false;
@@ -26,11 +26,11 @@ contract RelayCrud {
 
   /**
    * Inserts a relay into the relays mapping
-   * @param {address[]} _oracleAddresses - Oracle addressses selected for this relay
-   * @param {bytes32} _txHash - The serialized hash of the transaction to be relayed
-   * @param {bytes} _txTokenId - The tokenID for the transaction being relayed: BTC, ETH, etc.
-   * @param {address} _sender - The address of the sender of this transaction
-   * @returns {uint} index - The index in which the relay record was inserted
+   * @param  _oracleAddresses - Oracle addressses selected for this relay
+   * @param  _txHash - The serialized hash of the transaction to be relayed
+   * @param  _txTokenId - The tokenID for the transaction being relayed: BTC, ETH, etc.
+   * @param  _sender - The address of the sender of this transaction
+   * @return  index - The index in which the relay record was inserted
    */
   function insertRelay(address[5] _oracleAddresses, bytes32 _txHash, bytes _txTokenId, address _sender) public returns(uint index) {
     currentRelayId = keccak256(_txHash, _txTokenId);
@@ -52,8 +52,8 @@ contract RelayCrud {
 
   /**
    * Returns the ID of the relay based on the index
-   * @params {uint} _index - the index to serch for
-   * @returns {bytes32} relayId - the id of the returned relay
+   * @param  _index - the index to serch for
+   * @return  relayId - the id of the returned relay
    */
   function getRelayIDAtIndex(uint _index) public constant returns(bytes32 relayId) {
     return relayIndex[_index];
