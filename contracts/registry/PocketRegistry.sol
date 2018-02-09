@@ -23,12 +23,6 @@ contract PocketRegistry is NodeCrud, PocketRegistryState {
     return false;
   }
 
-
-  // This is the function to create a new Node.
-  function createNodeContract(bytes8[] _supportedTokens, bytes32 _url, bytes32 _path, uint8 _port, bool _isRelayer, bool _isOracle) public{
-    require(delegateContract.delegatecall(bytes4(keccak256("createNodeContract(bytes8[],bytes32,bytes32,uint8,bool,bool)")), _supportedTokens, _url, _path, _port, _isRelayer, _isOracle));
-  }
-  
   // By registering a Node, you are agreeing to be a relayer in the Pocket Network.
   // Three actions happen - you burn some PKT, register in the registry, and a Node contract gets created and assigned to your address
   // Registry allows network to keep track of current live nodes
@@ -36,7 +30,10 @@ contract PocketRegistry is NodeCrud, PocketRegistryState {
     require(delegateContract.delegatecall(bytes4(keccak256("registerNode(address,bytes8[],bytes32,bytes32,uint8,bool,bool)")), _nodeAddress, _supportedTokens, _url, _path, _port, _isRelayer, _isOracle));
   }
 
-
+  // This is the function to create a new Node.
+  function createNodeContract(bytes8[] _supportedTokens, bytes32 _url, bytes32 _path, uint8 _port, bool _isRelayer, bool _isOracle) public{
+    require(delegateContract.delegatecall(bytes4(keccak256("createNodeContract(bytes8[],bytes32,bytes32,uint8,bool,bool)")), _supportedTokens, _url, _path, _port, _isRelayer, _isOracle));
+  }
 
   // Updates the values of the given Registered Node record.
   function updateNodeRecord(address _nodeAddress, bytes8[] _supportedTokens, bytes32 _url, bytes32 _path, uint8 _port, bool _isRelayer, bool _isOracle) public{
@@ -81,11 +78,11 @@ contract PocketRegistry is NodeCrud, PocketRegistryState {
   }
 
   function setTokenAddress(address _tokenAddress) public onlyOwner {
-    tokenAddress = _tokenAddress;
+    require(delegateContract.delegatecall(bytes4(keccak256("setTokenAddress(address)")), _tokenAddress));
   }
 
   function setNodeDelegateAddress(address _nodeDelegateAddress) public onlyOwner {
-    nodeDelegateAddress = _nodeDelegateAddress;
+    require(delegateContract.delegatecall(bytes4(keccak256("setNodeDelegateAddress(address)")), _nodeDelegateAddress));
   }
 
   // TODO: Define a new way to retrieve Oracles
