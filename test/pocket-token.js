@@ -60,52 +60,42 @@ contract('PocketToken', function(accounts) {
     it("should set token address", function() {
       registry.setTokenAddress(token.address);
       return registry.tokenAddress.call().then(function(address) {
+        console.log(address)
         assert.equal(address, token.address, "addresses should be equal");
       });
     });
+
+
+    it("should register relayer as a relay node and set node contract", function() {
+
+      console.log(token.tokenAddress);
+      registry.createNodeContract(["ETH", "BTC"], "http://www.com", "/test/123", 8454, true, true, {from:relayer}).then(function(instance) {
+        console.log(instance);
+      });
+    });
+
+
   });
 
   describe("get contracts ready to throttle", function() {
 
-    it("should stake token", function () {
-      //console.log(token);
-      token.stake(1, {from:sender});
-      return token.stakedAmount.call(sender).then(function(amount) {
-        assert.equal(amount.toNumber(), 1, "should be 1");
-      });
-    });
+    // it("should stake token", function () {
+    //   //console.log(token);
+    //   token.stake(1, {from:sender});
+    //   return token.stakedAmount.call(sender).then(function(amount) {
+    //     assert.equal(amount.toNumber(), 1, "should be 1");
+    //   });
+    // });
+    //
+    // it("should transfer tokens to relayer", function() {
+    //   token.transfer(relayer, 50, {from:sender});
+    //   return token.balanceOf(relayer).then(function(balance) {
+    //     assert.equal(balance.toNumber(), 50, "should be 50");
+    //   });
+    // });
 
-    it("should transfer tokens to relayer", function() {
-      token.transfer(relayer, 50, {from:sender});
-      return token.balanceOf(relayer).then(function(balance) {
-        assert.equal(balance.toNumber(), 50, "should be 50");
-      });
-    });
 
-    it("should register relayer as a relay node and set node contract", function() {
-      registry.registerNode({from:relayer});
-      registry.getLiveNodes.call().then(function(nodes) {
-        return PocketNode.at(nodes[0]).then(function(instance) {
 
-          console.log(instance)
-          nodeContract = instance;
-
-        });
-      });
-    });
-
-      it("should send 3 transactions but only 2 relay contracts created", function() {
-
-        nodeContract.checkThrottle(sender, {from:relayer});
-        nodeContract.checkThrottle(sender, {from:relayer});
-        nodeContract.checkThrottle(sender, {from:relayer});
-        nodeContract.checkThrottle(sender, {from:relayer});
-        nodeContract.checkThrottle(sender, {from:relayer});
-
-        return node.getRelays.call().then(function(relays) {
-          assert.equal(relays, 3, "should be 3 within 10 blocks");
-        });
-      });
 
 
   });
