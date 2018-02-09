@@ -19,9 +19,11 @@ contract NodeCrud {
     // Keeps the index of the keys array for fast lookup.
     uint keysIndex;
     // Keeps the node supported Tokens
-    string8[] supportedTokens;
+    bytes8[] supportedTokens;
     // Keeps the url of the node.
-    string url;
+    bytes32 url;
+    // Keeps the url path of the node.
+    bytes32 path;
     // Keeps the port of the node.
     uint8 port;
     // Keeps the boolean for the node preference if is a relayer or not.
@@ -31,16 +33,17 @@ contract NodeCrud {
   }
 
   // This is the function that actually inserts a record.
-  function insertNode(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle){
+  function insertNode(address _nodeAddress, bytes8[] _supportedTokens, bytes32 _url, bytes32 _path, uint8 _port, bool _isRelayer, bool _isOracle) public{
     // TODO: Permissions
     // TODO: Dynamic burn amount
 
-    require(nodeRecords[_nodeAddress].time == 0)
+    require(nodeRecords[_nodeAddress].time == 0);
     nodeRecords[_nodeAddress].time = now;
     nodeRecords[_nodeAddress].owner = msg.sender;
     nodeRecords[_nodeAddress].keysIndex = nodeRecordsIndex.push(_nodeAddress) - 1;
     nodeRecords[_nodeAddress].supportedTokens = _supportedTokens;
     nodeRecords[_nodeAddress].url = _url;
+    nodeRecords[_nodeAddress].path = _path;
     nodeRecords[_nodeAddress].port = _port;
     nodeRecords[_nodeAddress].isRelayer = _isRelayer;
     nodeRecords[_nodeAddress].isOracle = _isOracle;
@@ -48,16 +51,17 @@ contract NodeCrud {
   }
 
   // Updates the values of the given Node record.
-  function updateNode(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
+  function updateNode(address _nodeAddress, bytes8[] _supportedTokens, bytes32 _url, bytes32 _path, uint8 _port, bool _isRelayer, bool _isOracle) public{
     nodeRecords[_nodeAddress].supportedTokens = _supportedTokens;
     nodeRecords[_nodeAddress].url = _url;
+    nodeRecords[_nodeAddress].path = _path;
     nodeRecords[_nodeAddress].port = _port;
     nodeRecords[_nodeAddress].isRelayer = _isRelayer;
     nodeRecords[_nodeAddress].isOracle = _isOracle;
   }
 
   // Transfer ownership of a given record.
-  function transfer(address _nodeAddress, address newOwner) {
+  function transfer(address _nodeAddress, address newOwner) public{
     nodeRecords[_nodeAddress].owner = newOwner;
   }
 

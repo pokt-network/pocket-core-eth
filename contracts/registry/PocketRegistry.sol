@@ -1,34 +1,18 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4;
 
 import "../token/PocketToken.sol";
 import "../node/PocketNode.sol";
 import "./NodeCrud.sol";
+import "./PocketRegistryState.sol";
 
-contract PocketRegistry is NodeCrud {
+contract PocketRegistry is NodeCrud, PocketRegistryState {
 
-  // Address state
-  address public owner = msg.sender;
-  uint public creationTime = now;
-  address public tokenAddress;
-  address public delegateContract;
-  address[] public previousDelegates;
-
-  modifier onlyOwner {
-    if (msg.sender != owner) revert();
-    _;
-  }
-
-  // Node state
-  mapping (address => address) public userNode;
-
-  event DelegateChanged(address oldAddress, address newAddress);
-
-  function PocketRegistry() {
-    // constructor
+  // Funtions
+  function PocketRegistry() public{
     owner = msg.sender;
   }
 
-  function changeDelegate(address _newDelegate) returns (bool) onlyOwner {
+  function changeDelegate(address _newDelegate) public onlyOwner returns (bool) {
     if (_newDelegate != delegateContract) {
       previousDelegates.push(delegateContract);
       var oldDelegate = delegateContract;
@@ -42,62 +26,74 @@ contract PocketRegistry is NodeCrud {
   // By registering a Node, you are agreeing to be a relayer in the Pocket Network.
   // Three actions happen - you burn some PKT, register in the registry, and a Node contract gets created and assigned to your address
   // Registry allows network to keep track of current live nodes
-  function registerNode(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
-    require(delegateContract.delegatecall(bytes4(sha3("registerNode(address,string8[],string,uint8,bool,bool)")), _nodeAddress, _supportedTokens, _url, _port, _isRelayer, _isOracle));
+  function registerNode(address _nodeAddress, bytes8[] _supportedTokens, bytes32 _url, bytes32 _path, uint8 _port, bool _isRelayer, bool _isOracle) public{
+    require(delegateContract.delegatecall(bytes4(keccak256("registerNode(address,bytes8[],bytes32,bytes32,uint8,bool,bool)")), _nodeAddress, _supportedTokens, _url, _path, _port, _isRelayer, _isOracle));
   }
 
   // This is the function to create a new Node.
-  function createNodeContract(string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
-    require(delegateContract.delegatecall(bytes4(sha3("createNodeContract(string8[],string,uint8,bool,bool)")), _supportedTokens, _url, _port, _isRelayer, _isOracle));
+  function createNodeContract(bytes8[] _supportedTokens, bytes32 _url, bytes32 _path, uint8 _port, bool _isRelayer, bool _isOracle) public{
+    require(delegateContract.delegatecall(bytes4(keccak256("createNodeContract(bytes8[],bytes32,bytes32,uint8,bool,bool)")), _supportedTokens, _url, _path, _port, _isRelayer, _isOracle));
   }
 
   // Updates the values of the given Registered Node record.
-  function updateNodeRecord(address _nodeAddress, string8[] _supportedTokens, string _url, uint8 _port, bool _isRelayer, bool _isOracle) {
-    require(delegateContract.delegatecall(bytes4(sha3("updateNodeRecord(address,string8[],string,uint8,bool,bool)")), _nodeAddress, _supportedTokens, _url, _port, _isRelayer, _isOracle));
+  function updateNodeRecord(address _nodeAddress, bytes8[] _supportedTokens, bytes32 _url, bytes32 _path, uint8 _port, bool _isRelayer, bool _isOracle) public{
+    require(delegateContract.delegatecall(bytes4(keccak256("updateNodeRecord(address,bytes8[],bytes32,bytes32,uint8,bool,bool)")), _nodeAddress, _supportedTokens, _url, _path, _port, _isRelayer, _isOracle));
   }
 
   // Transfer ownership of a given record.
-  function transferNode(address _nodeAddress, address newOwner) {
-    require(delegateContract.delegatecall(bytes4(sha3("transferNode(address,address)")), _nodeAddress, newOwner));
+  function transferNode(address _nodeAddress, address newOwner) public{
+    require(delegateContract.delegatecall(bytes4(keccak256("transferNode(address,address)")), _nodeAddress, newOwner));
   }
 
   // Tells whether a given Node key is registered.
-  function isRegisteredNode(address _nodeAddress) returns(bool bool) {
-    return nodeRecords[key].time != 0;
+  function isRegisteredNode(address _nodeAddress) public returns(bool result) {
+    return nodeRecords[_nodeAddress].time != 0;
   }
 
-  function getNodeRecordAtIndex(uint _index) returns(address key) {
+  function getNodeRecordAtIndex(uint _index) public returns(address key) {
     return nodeRecordsIndex[_index];
   }
 
   // Returns the owner of the given record. The owner could also be get
   // by using the function getRecord but in that case all record attributes
   // are returned.
-  function getNodeOwner(address _nodeAddress) returns(address) {
+  function getNodeOwner(address _nodeAddress) public returns(address) {
     return nodeRecords[_nodeAddress].owner;
   }
 
   // Returns the registration time of the given record. The time could also
   // be get by using the function getRecord but in that case all record attributes
   // are returned.
-  function getNodeTime(address _nodeAddress) returns(uint) {
+  function getNodeTime(address _nodeAddress) public returns(uint) {
     return nodeRecords[_nodeAddress].time;
   }
 
-  function kill() onlyOwner {
-    require(delegateContract.delegatecall(bytes4(sha3("kill()"))));
+  function kill() onlyOwner public{
+    require(delegateContract.delegatecall(bytes4(keccak256("kill()"))));
   }
 
   // Get list of nodes that are currently relaying transactions
-  function getLiveNodes() constant returns (address[]) {
+  function getLiveNodes() public constant returns (address[]) {
     return nodeRecordsIndex;
   }
 
-  function setTokenAddress(address _tokenAddress) onlyOwner {
-    require(delegateContract.delegatecall(bytes4(sha3("setTokenAddress(address)")), _tokenAddress));
+  function setTokenAddress(address _tokenAddress) public onlyOwner {
+    require(delegateContract.delegatecall(bytes4(keccak256("setTokenAddress(address)")), _tokenAddress));
   }
-  function setNodeDelegateAddress(address _nodeDelegateAddress) onlyOwner {
-    require(delegateContract.delegatecall(bytes4(sha3("setNodeDelegateAddress(address)")), _nodeDelegateAddress));
+
+  function setNodeDelegateAddress(address _nodeDelegateAddress) public onlyOwner {
+    require(delegateContract.delegatecall(bytes4(keccak256("setNodeDelegateAddress(address)")), _nodeDelegateAddress));
+  }
+
+  // TODO: Define a new way to retrieve Oracles
+  // This needs to return a fixed length array
+  function getRelayOracles() public returns(address[] oracles) {
+    address[] memory oracleRecords = new address[](5);
+
+    for(uint i;i < 5;i++){
+      oracleRecords[i] = (nodeRecordsIndex[i]);
+    }
+    return oracleRecords;
   }
 
 }
