@@ -9,8 +9,6 @@ contract PocketNode is RelayCrud, PocketNodeState {
   bytes4 submitRelayVoteSignature;
   bytes4 increaseACRelaysCountSignature;
   bytes4 increaseACVRelaysCountSignature;
-  // Events
-  event LogRelayConcluded(bytes32 _relayId, address _relayer);
   // Functions
   /**
    * Represents a PocketNode.
