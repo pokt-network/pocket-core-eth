@@ -4,9 +4,13 @@ var PocketNodeContract = artifacts.require('./PocketNode.sol'),
     expect = chai.expect,
     should = chai.should();
 
+// Creation of new Nodes is tested in the Registry tests
 contract('PocketNode', (accounts) => {
+  var relayer,
+      oracle;
 
-  it('should create a new instance', async() => {
+  // TO-DO: Create a new relayer and oracle nodes using registry
+  before(async() => {
 
   });
 
@@ -19,7 +23,7 @@ contract('PocketNode', (accounts) => {
   });
 
   it('should increase the count of approved and concluded relays done by this node', async() => {
-    
+
   });
 
   it('should withdraw funds to owner', async() => {
