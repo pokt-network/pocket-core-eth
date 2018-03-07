@@ -1,112 +1,71 @@
-var PocketToken = artifacts.require('./PocketToken.sol');
-var PocketRegistry = artifacts.require('./PocketRegistry.sol');
-var PocketRegistryDelegate = artifacts.require('./PocketRegistryDelegate.sol');
-var PocketNodeDelegate = artifacts.require('./PocketNodeDelegate.sol');
-var PocketNode = artifacts.require('./PocketNode.sol');
+var PocketToken = artifacts.require('./PocketToken.sol'),
+    chai = require('chai'),
+    expect = chai.expect,
+    should = chai.should(),
+    utils = require("./utils.js");
 
-contract('PocketToken', function(accounts) {
+const run = exports.run = function(accounts) {
+  let pocket_token;
 
-  var sender = accounts[0];
-  var relayer = accounts[1];
-  var token;
-  var registry;
-  var node;
-  var relay;
+  before(async function(){
+    console.log('Pocket Token Contract address: ' + PocketToken.address);
+    pocket_token = await PocketToken.at(PocketToken.address);
+  });
 
-  describe("Deploy all the contracts", function() {
-
-      it("should initialize token contract", function() {
-        return PocketToken.new().then(function(instance) {
-          token = instance;
-        });
-      });
-
-    it("should initialize registry contract", function() {
-      return PocketRegistry.new().then(function(instance) {
-        registry = instance;
-      });
+  describe('Standalone contract functionality', async function(){
+    it('should deploy to the network', async function(){
+      pocket_token.should.be.ok;
     });
 
-
-    it("should initialize registry delegate contract", function() {
-      return PocketRegistryDelegate.new().then(function(instance) {
-        registryDelegate = instance;
-      });
+    it('should allow an address to stake POKT', async function(){
+      var stakedBalance = (await utils.getPoktStakeBalance(pocket_token, accounts[0])).toNumber(),
+          amountToStake = 100,
+          txResponse = await utils.stakePokt(pocket_token, accounts[0], amountToStake),
+          stakedEventTriggered = utils.expectedEventOcurred(txResponse, {logIndex: 0, event: 'Staked'}),
+          newStakedBalance = (await utils.getPoktStakeBalance(pocket_token, accounts[0])).toNumber();
+      // Assertions
+      stakedEventTriggered.should.be.true;
+      newStakedBalance.should.equal(stakedBalance + amountToStake);
     });
 
-    it("should initialize node delegate contract", function() {
-      return PocketNodeDelegate.new().then(function(instance) {
-        nodeDelegate = instance;
-      });
+    it('should allow an address to release POKT', async function(){
+      var stakedBalance = (await utils.getPoktStakeBalance(pocket_token, accounts[0])).toNumber(),
+          amountToStake = 100,
+          amountToRelease = 50,
+          stakeTxResponse = await utils.stakePokt(pocket_token, accounts[0], amountToStake),
+          releaseTxResponse = await utils.releasePoktStake(pocket_token, accounts[0], amountToRelease),
+          releaseEventTriggered = utils.expectedEventOcurred(releaseTxResponse, {logIndex: 0, event: 'StakeReleased'}),
+          newStakedBalance = (await utils.getPoktStakeBalance(pocket_token, accounts[0])).toNumber();
+      // Assertions
+      releaseEventTriggered.should.be.true;
+      newStakedBalance.should.equal((stakedBalance + amountToStake) - amountToRelease);
     });
   });
 
-  describe("Set delegates", function() {
+  describe('Epoch functionality', async function(){
+    it('should mine the current epoch', async function() {
+      var miner = accounts[0],
+          blocksPerEpoch = 10,
+          currentEpoch = await pocket_token.currentEpoch.call(),
+          currentEpochBlockStart = await pocket_token.currentEpochBlockStart.call(),
+          currentEpochBlockEnd = await pocket_token.currentEpochBlockEnd.call();
 
-    it("should set registry delegate", function() {
-        registry.changeDelegate(registryDelegate.address);
-        return registry.delegateContract.call().then(function(address) {
-        assert.equal(address, registryDelegate.address, "addresses should be equal");
-      });
-    });
+      console.log(currentEpoch.toNumber());
+      console.log(currentEpochBlockStart.toNumber());
+      console.log(currentEpochBlockEnd.toNumber());
+      // Simulate 10 transactions, which equates to 10 blocks in a test blockchain
+      for (var i = 0; i < blocksPerEpoch; i++) {
+        minerStakedTx = await utils.stakePokt(pocket_token, miner, 10);
+      }
 
-    it("should set node delegate", function() {
-      registry.setNodeDelegateAddress(nodeDelegate.address);
-      return registry.nodeDelegateAddress.call().then(function(address) {
-        assert.equal(address, nodeDelegate.address, "addresses should be equal");
-      });
-    });
+      // Mine the epoch
+      var epochMinedTx = await pocket_token.mineCurrentEpoch({from: miner}),
+          epochMinedEventTriggered = utils.expectedEventOcurred(epochMinedTx, {logIndex: 0, event: 'EpochMined'});
 
-    it("should set token address", function() {
-      registry.setTokenAddress(token.address);
-      return registry.tokenAddress.call().then(function(address) {
-        assert.equal(address, token.address, "addresses should be equal");
-      });
+      epochMinedEventTriggered.should.be.true;
     });
   });
+  return { pocket_token };
+};
 
-  describe("get contracts ready to throttle", function() {
-
-    it("should stake token", function () {
-      //console.log(token);
-      token.stake(1, {from:sender});
-      return token.stakedAmount.call(sender).then(function(amount) {
-        assert.equal(amount.toNumber(), 1, "should be 1");
-      });
-    });
-
-    it("should transfer tokens to relayer", function() {
-      token.transfer(relayer, 50, {from:sender});
-      return token.balanceOf(relayer).then(function(balance) {
-        assert.equal(balance.toNumber(), 50, "should be 50");
-      });
-    });
-
-    it("should register relayer as a relay node and set node contract", function() {
-      registry.registerNode({from:relayer});
-      registry.getLiveNodes.call().then(function(nodes) {
-        return PocketNode.at(nodes[0]).then(function(instance) {
-
-          console.log(instance)
-          nodeContract = instance;
-
-        });
-      });
-    });
-
-      it("should send 3 transactions but only 2 relay contracts created", function() {
-
-        nodeContract.checkThrottle(sender, {from:relayer});
-        nodeContract.checkThrottle(sender, {from:relayer});
-        nodeContract.checkThrottle(sender, {from:relayer});
-        nodeContract.checkThrottle(sender, {from:relayer});
-        nodeContract.checkThrottle(sender, {from:relayer});
-
-        return node.getRelays.call().then(function(relays) {
-          assert.equal(relays, 3, "should be 3 within 10 blocks");
-        });
-      });
-
-
-  });
-});
+contract('PocketToken', run);
