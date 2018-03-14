@@ -65,4 +65,12 @@ contract StakableToken is StandardToken {
     return true;
   }
 
+  /*
+   * @dev Return the staked amount for a certain address
+   * @param _address
+   */
+  function stakedBalanceOf(address _address) public returns (uint256) {
+    return stakedAmount[_address];
+  }
+
 }

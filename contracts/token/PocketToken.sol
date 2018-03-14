@@ -24,13 +24,14 @@ contract PocketToken is StakableToken {
   uint public constant EPOCHS_PER_HALVING = 100;
   // Events
   event Mint(address indexed to, uint amount);
+  event EpochMined(address indexed miner);
   // Functions
   function PocketToken() public {
     // constructor
     totalSupply = 100000000;
     balances[msg.sender] = totalSupply;
     name = "Pocket Token";
-    symbol = "PKT";
+    symbol = "POKT";
     decimals = 18;
     version = "0.1";
     currentEpochBlockStart = block.number;
@@ -118,6 +119,7 @@ contract PocketToken is StakableToken {
     if(currentEpoch % EPOCHS_PER_HALVING == 0){
       totalMintReward = totalMintReward / 2;
     }
+    EpochMined(msg.sender);
   }
 
   // TODO: Permissions
