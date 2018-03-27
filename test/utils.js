@@ -1,30 +1,18 @@
-module.exports = {
-  expectedEventOcurred: function(transactionResponse, eventFilter) {
-    var logs = transactionResponse.logs,
-        result = true;
+exports.registerNode = async(nodeRegistry, owner, networks, endpoint) => {
+  var txResult = await nodeRegistry.register(networks, endpoint, {from: owner}),
+      relayerNonce = txResult.logs[0].args._nonce;
+  return relayerNonce;
+};
 
-    if (logs) {
-      var keys = ['logIndex', 'event'];
-      for (var i = 0; i < logs.length; i++) {
-        var log = logs[i];
-        for (var i = 0; i < keys.length; i++) {
-          if(log[keys[i]] != eventFilter[keys[i]]){
-            result = false;
-            break;
-          }
-        }
-      }
+exports.addRelayToCurrentEpoch = async(epochRegistry, nodeAccount, nodeNonce, txHash, token, sender) => {
+  var txResult = await epochRegistry.addRelayToCurrentEpoch(token, txHash, sender, nodeNonce, {from: nodeAccount}),
+      result = null;
+  for (var i = 0; i < txResult.logs.length; i++) {
+    var currLog = txResult.logs[i];
+    if (currLog.event === 'RelayAddedToEpoch') {
+      result = txResult.logs[i].args._relayNonce;
+      break;
     }
-
-    return result;
-  },
-  stakePokt: function(pocketTokenContract, stakerAddress, amount) {
-    return pocketTokenContract.stake(amount, {from: stakerAddress});
-  },
-  releasePoktStake: function(pocketTokenContract, stakerAddress, amount) {
-    return pocketTokenContract.releaseStake(amount, {from: stakerAddress});
-  },
-  getPoktStakeBalance: function(pocketTokenContract, stakerAddress) {
-    return pocketTokenContract.stakedBalanceOf.call(stakerAddress, {from: stakerAddress});
   }
+  return result;
 };

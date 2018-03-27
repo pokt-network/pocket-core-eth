@@ -1,8 +1,9 @@
-pragma solidity ^0.4.22;
+pragma solidity ^0.4.18;
 
 library Models {
 
     struct Relay {
+        bytes8 token;
         bytes32 txHash;
         address sender;
         bytes32 nodeNonce;
@@ -14,13 +15,14 @@ library Models {
         uint256 blockStart;
         uint256 blockEnd;
         mapping (bytes32 => Relay) relays;
+        mapping (bytes32 => bytes32[]) relaysPerNode;
     }
 
     struct Node {
         bytes32 nonce;
         address owner;
         bytes8[] networks;
-        bytes32 endpoint;
+        string endpoint;
     }
 
 }
