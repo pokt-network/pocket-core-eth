@@ -5,6 +5,7 @@ import "../Models.sol";
 contract NodeRegistry {
     // State
     mapping (bytes32 => Models.Node) public nodes;
+    mapping (address => bytes32[]) public nodesPerAccount;
     bytes32[] public nodesIndex;
 
     // Functions
@@ -31,4 +32,17 @@ contract NodeRegistry {
      * @param bytes32 _nodeNonce
      */
     function getNodeOwner(bytes32 _nodeNonce) public view returns(address) {}
+
+    /*
+     * @dev Returns a paginated list of the nodes owned by the account
+     * @param address _owner
+     * @param uint256 _page
+     */
+    function getOwnerNodes(address _owner, uint256 _page) public view returns (bytes32[]) {}
+
+    /*
+     * @dev Returns the Node information given the nonce
+     * @param bytes32 _nodeNonce
+     */
+    function getNode(bytes32 _nodeNonce) public view returns (bytes32, address, bytes8[], string) {}
 }
