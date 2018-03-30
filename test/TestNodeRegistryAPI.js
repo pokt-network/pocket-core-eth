@@ -24,4 +24,26 @@ contract('NodeRegistryAPI', (accounts) => {
     var relayerNonce = await Utils.registerNode(nodeRegistry, accounts[0], ['BTC', 'ETH'], '/ip4/127.0.0.1/tcp/90/http/pocket/relays');
     assert.notEqual(relayerNonce, undefined, 'node registered succesfully');
   });
+
+  // Test getting owner nodes
+  it('should return a paginated list of nodes', async() => {
+    var nodeNonce = await Utils.registerNode(nodeRegistry, accounts[1], ['BTC', 'ETH'], '/ip4/127.0.0.1/tcp/90/http/pocket/relays2'),
+        nodes = await nodeRegistry.getOwnerNodes(accounts[1], 1);
+
+    assert.equal(nodeNonce, nodes[0], 'Node list matches registered node responsec');
+  });
+
+  // Test getting a specific node information
+  it('should return node data', async() => {
+    var endpoint = '/ip4/127.0.0.1/tcp/90/http/pocket/relays',
+        networks = ['BTC', 'ETH'],
+        nodeNonce = await Utils.registerNode(nodeRegistry, accounts[2], networks, endpoint),
+        node = await nodeRegistry.getNode(nodeNonce);
+
+    assert.equal(nodeNonce, node[0], 'Node has the correct nonce');
+    assert.equal(accounts[2], node[1], 'Node has the correct owner');
+    assert.equal(networks[0], web3.toUtf8(node[2][0]), 'Node has the correct networks BTC');
+    assert.equal(networks[1], web3.toUtf8(node[2][1]), 'Node has the correct networks ETH');
+    assert.equal(endpoint, node[3], 'Node has the correct endpoint');
+  });
 });
