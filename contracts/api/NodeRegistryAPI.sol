@@ -81,4 +81,11 @@ contract NodeRegistryAPI is BaseAPI, NodeRegistry {
     function getNode(bytes32 _nodeNonce) public view returns (bytes32, address, bytes8[], string) {
         return(nodes[_nodeNonce].nonce, nodes[_nodeNonce].owner, nodes[_nodeNonce].networks, nodes[_nodeNonce].endpoint);
     }
+
+    /*
+     * @dev Returns the length of the nodesIndex array
+     */
+    function getNodesIndexLength() public view returns (uint256) {
+        return nodesIndex.length;
+    }
 }

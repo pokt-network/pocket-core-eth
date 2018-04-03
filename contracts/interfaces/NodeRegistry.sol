@@ -45,4 +45,9 @@ contract NodeRegistry {
      * @param bytes32 _nodeNonce
      */
     function getNode(bytes32 _nodeNonce) public view returns (bytes32, address, bytes8[], string) {}
+
+    /*
+     * @dev Returns the length of the nodesIndex array
+     */
+    function getNodesIndexLength() public view returns (uint256) {}
 }
