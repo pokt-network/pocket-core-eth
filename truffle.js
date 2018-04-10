@@ -8,9 +8,9 @@ module.exports = {
     rinkeby: {
       host: "127.0.0.1",
       port: 8545,
-      network_id: "4",
-      from: "0xfc7846d06fab273c62cda0d29eac0936a22eeca4",
-      gas: 2000000
+      network_id: 4,
+      from: "0xE1B33AFb88C77E343ECbB9388829eEf6123a980a",
+      gas: 7003700
     }
   }
 };
