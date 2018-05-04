@@ -58,7 +58,7 @@ contract NodeRegistryAPI is BaseAPI, NodeRegistry {
         bytes32[] memory result = new bytes32[](10);
         if(totalNodes > 0 && _page > 0){
             uint256 initialIndex = SafeMath.mul(uint256(SafeMath.sub(_page, 1)), 10);
-            uint256 lastIndex = SafeMath.add(initialIndex, 9);
+            uint256 lastIndex = SafeMath.add(initialIndex, 10);
             if(initialIndex < totalNodes) {
                 uint256 resultIndex = 0;
                 for(uint256 i = initialIndex; i < lastIndex; i++){

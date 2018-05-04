@@ -26,11 +26,20 @@ contract('NodeRegistryAPI', (accounts) => {
   });
 
   // Test getting owner nodes
-  it('should return a paginated list of nodes', async() => {
-    var nodeNonce = await Utils.registerNode(nodeRegistry, accounts[1], ['BTC', 'ETH'], '/ip4/127.0.0.1/tcp/90/http/pocket/relays2'),
-        nodes = await nodeRegistry.getOwnerNodes(accounts[1], 1);
+  it('should return a paginated list of owner nodes', async() => {
+    var nodes = [];
 
-    assert.equal(nodeNonce, nodes[0], 'Node list matches registered node responsec');
+    // Register nodes
+    for (var i = 0; i < 10; i++) {
+      var nodeNonce = await Utils.registerNode(nodeRegistry, accounts[1], ['BTC', 'ETH'], '/ip4/127.0.0.1/tcp/90/http/pocket/relays2');
+      nodes.push(nodeNonce);
+    }
+
+    // Fetch owner nodes
+    var ownerNodes = await nodeRegistry.getOwnerNodes(accounts[1], 1);
+
+    // Assert results
+    assert.deepEqual(nodes, ownerNodes, 'Node list matches registered node response');
   });
 
   // Test getting a specific node information
